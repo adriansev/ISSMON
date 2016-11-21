@@ -2,8 +2,7 @@
 
 PWD_DIR=`dirname $0`
 
-ISSMON_DIR="$HOME/issmon"
-OUTPUT_DIR="$ISSMON_DIR/data/raid"
+OUTPUT_DIR="/export/home/monalisa/issmon_data/raid"
 
 TABLE="snmptable "
 GET="snmpget "
@@ -27,8 +26,7 @@ EVENT=" eventInfoTable"
 TYPE1=" -IS ARECA-SNMP-MIB-SATA:: "
 TYPE2=" -IS ARECA-SNMP-MIB-SAS:: "
 
-for raid in `cat $ISSMON_DIR/list_raid`
-do
+for raid in `cat $ISSMON_DIR/list_raid` ; do
   FILE=$raid
 
   NAME_RAID=`$GET $ARG3 $SNMP_COMMUNITY $raid $NAME | sed 's/^\ //;s/\ /_/g'`

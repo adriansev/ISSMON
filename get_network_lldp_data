@@ -2,9 +2,7 @@
 
 PWD_DIR=`dirname $0`
 
-ISSMON_DIR="$HOME/issmon"
-
-OUTPUT_DIR="${ISSMON_DIR}/data/network/LLDP"
+OUTPUT_DIR="/export/home/monalisa/issmon_data/network/LLDP"
 mkdir -p ${OUTPUT_DIR}
 
 TABLE="snmptable "

@@ -11,7 +11,7 @@ NOW="${DAY}  ${TIME}"
 ##echo ${NOW}
 
 ISSMON_DIR="/export/home/monalisa/issmon"
-OUTPUT_DIR="$ISSMON_DIR/data"
+OUTPUT_DIR="/export/home/monalisa/issmon_data"
 
 FILE_TEMPLATE="${ISSMON_DIR}/ISS-DC_template.png"
 FILE="${OUTPUT_DIR}/ISS-DC_tmp.png"
@@ -30,7 +30,7 @@ source ${OUTPUT_DIR}/PDU.txt
 
 COLOR="blue"
 
-load_total=`echo "$UPS_OUT_LOAD1 + $UPS_OUT_LOAD2 + $UPS_OUT_LOAD3" | bc -l`
+load_total=$(echo "$UPS_OUT_LOAD1 + $UPS_OUT_LOAD2 + $UPS_OUT_LOAD3" | bc -l)
 
 convert -size 140x140 -transparent white -fill ${COLOR} -font Liberation-Sans -gravity east -pointsize 17  -trim  \
 label:"$UPS_OUT_LOAD1\n$UPS_OUT_LOAD2\n$UPS_OUT_LOAD3" ${TMP1}
@@ -180,13 +180,6 @@ composite -geometry +968+693 ${TMP2} ${FILE} ${FILE} ## UPS Load %
 composite -geometry +590+40  ${TMP3} ${FILE} ${FILE} ## BR Intensity
 composite -geometry +745+40  ${TMP4} ${FILE} ${FILE} ## BR Load
 composite -geometry +930+40  ${TMP5} ${FILE} ${FILE} ## BR Power
-
-#composite -geometry +953+625 ${TMP1} ${FILE} ${FILE} ## UPS Load
-#composite -geometry +968+693 ${TMP2} ${FILE} ${FILE} ## UPS Load % 
-#composite -geometry +610+40  ${TMP3} ${FILE} ${FILE} ## BR Intensity
-#composite -geometry +765+40  ${TMP4} ${FILE} ${FILE} ## BR Load
-#composite -geometry +950+40  ${TMP5} ${FILE} ${FILE} ## BR Power
-
 
 #composite ${FILE} \
 #-geometry +953+625 ${TMP1} \

@@ -4,8 +4,7 @@ PWD_DIR=`dirname $0`
 
 UPS="172.20.0.191"
 
-ISSMON_DIR="$HOME/issmon"
-OUTPUT_DIR="$ISSMON_DIR/data"
+OUTPUT_DIR="/export/home/monalisa/issmon_data"
 
 TEMP_FILE="/tmp/temp_snmp_data.txt"
 
@@ -81,7 +80,7 @@ upsPhaseOutputMinPercentLoad2="${POWERNET}.1.1.1.9.3.3.1.11.1.1.2"
 upsPhaseOutputMinPercentLoad3="${POWERNET}.1.1.1.9.3.3.1.11.1.1.3"
 
 
-SNMPOUT=`$GET $ARG3 $SNMP_COMMUNITY $UPS \
+SNMPOUT=$($GET $ARG3 $SNMP_COMMUNITY $UPS \
 $NAME \
 $upsBasicIdentModel \
 $upsAdvBatteryRunTimeRemaining \
@@ -106,10 +105,9 @@ $upsPhaseOutputLoad2 \
 $upsPhaseOutputLoad3 \
 $upsPhaseOutputPercentLoad1 \
 $upsPhaseOutputPercentLoad2 \
-$upsPhaseOutputPercentLoad3`
+$upsPhaseOutputPercentLoad3)
 
 ##echo $SNMPOUT
-
 #: <<'COMMENT'
  
   echo $SNMPOUT | awk  '

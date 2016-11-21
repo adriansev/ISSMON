@@ -24,36 +24,31 @@ get_smart_from_file()
 
 
 
-DATADIR="/export/home/monalisa/issmon/data/raid_smart"
+DATADIR="/export/home/monalisa/issmon_data/raid_smart"
 RAWDATADIR=$DATADIR/raw
 
-##RAID_HOSTS="issaf storage01 storage02 storage03 storage04 storage05 storage06"
-RAID_HOSTS="issaf storage02 storage03 storage04 storage05 storage06"
-
+RAID_HOSTS="issaf storage02 storage03 storage04 storage05 storage06 storage07"
 
 REMOTE_SMART_LOC="/raid_info/smart/"
 
-for host in $RAID_HOSTS
-do
-  if [ "$host" == "issaf" ] 
-  then
+for host in $RAID_HOSTS ; do
+  if [ "$host" == "issaf" ] ; then
     BASE_REMOTE_SMART_LOC="/export/"
   else
     BASE_REMOTE_SMART_LOC="/home/"
   fi
+
   mkdir -p $RAWDATADIR/$host
   rsync -qau --delete $host:$BASE_REMOTE_SMART_LOC/$REMOTE_SMART_LOC $RAWDATADIR/$host/
 done
 
 
 
-for server in `ls -1 $RAWDATADIR`
-do
+for server in `ls -1 $RAWDATADIR` ; do
   SHORTDIR="$DATADIR/short/$server.smart"
   [ -d "$RAWDATADIR/$server" ] && mkdir -p $SHORTDIR || continue
   cd $SHORTDIR
-  for hdd in `ls -1 $RAWDATADIR/$server/*.smart`
-  do
+  for hdd in `ls -1 $RAWDATADIR/$server/*.smart` ; do
     get_smart_from_file $hdd | column -t > $SHORTDIR/`basename $hdd`
   done
 done
