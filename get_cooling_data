@@ -2,8 +2,7 @@
 
 PWD_DIR=`dirname $0`
 
-ISSMON_DIR="$HOME/issmon"
-OUTPUT_DIR="$ISSMON_DIR/data/cooling"
+OUTPUT_DIR="/export/home/monalisa/issmon_data/cooling"
 
 TEMP_FILE="/tmp/temp_snmp_data.txt"
 
@@ -97,12 +96,11 @@ in_chilled_185="${POWERNET}.1.1.13.3.2.2.2.24.0"
 out_chilled_185="${POWERNET}.1.1.13.3.2.2.2.26.0"
 
 
-for cool in `cat $ISSMON_DIR/list_cooling`
-do
+for cool in $(cat $ISSMON_DIR/list_cooling) ; do
   FILE="$OUTPUT_DIR/$cool.cooling"
 
   if [[ "$cool" == "172.20.0.185" ]] ;then
-    SNMPOUT=`$GET $ARG3 $SNMP_COMMUNITY $cool \
+    SNMPOUT=$($GET $ARG3 $SNMP_COMMUNITY $cool \
     $NAME \
     $model_185 \
     $supply_temp_185 \
@@ -113,11 +111,7 @@ do
     $airflow_185 \
     $fan_speed_185 \
     $in_chilled_185 \
-    $out_chilled_185`
-
-#    echo; echo $SNMPOUT ; echo
-
-#: <<'COMMENT'
+    $out_chilled_185)
 
     echo $SNMPOUT | awk  '
     {
@@ -140,11 +134,9 @@ do
     printf ("coil_chilled=0\n");
     } ' > $FILE
 
-#COMMENT
-
   else 
 
-    SNMPOUT=`$GET $ARG3 $SNMP_COMMUNITY $cool \
+    SNMPOUT=$($GET $ARG3 $SNMP_COMMUNITY $cool \
     $NAME \
     $model \
     $supply_temp \
@@ -161,11 +153,7 @@ do
     $airflow2 \
     $in_chilled \
     $out_chilled \
-    $coil_chilled`
-
-#    echo; echo $SNMPOUT ; echo
-
-#: <<'COMMENT'
+    $coil_chilled)
 
     echo $SNMPOUT | awk  '
     {
@@ -187,8 +175,6 @@ do
     printf ("out_chilled=%.1f\n", $16/10);
     printf ("coil_chilled=%.1f\n", $17/10);
     } ' > $FILE
-
-#COMMENT
 
   fi
 
