@@ -1,0 +1,65 @@
+#!/bin/bash
+
+PWD_DIR=`dirname $0`
+
+ISSMON_DIR="$HOME/issmon"
+
+OUTPUT_DIR="${ISSMON_DIR}/data/network/LLDP"
+mkdir -p ${OUTPUT_DIR}
+
+TABLE="snmptable "
+GET="snmpget "
+WALK="snmpwalk "
+
+SNMP_COMMUNITY=" -c iss-ro -v 2c -Pu "
+ARG2=" -CB -Cf \" ; \" lldpRemTable "
+ARG3=" -Oq -Ov "
+OUTPUT="/tmp/snmp_temp_network.txt"
+
+NAME=" .1.3.6.1.2.1.1.5.0"
+
+for switch in `cat $ISSMON_DIR/list_switch`; do
+
+GET_NAME_SWITCH="$GET$ARG3$SNMP_COMMUNITY$switch$NAME | sed 's/^\ //;s/\ /_/g'"
+GET_TABLE_SWITCH="$TABLE$SNMP_COMMUNITY$switch$ARG2"
+
+#echo 
+#echo $GET_NAME_SWITCH
+#echo $GET_TABLE_SWITCH
+
+NAME_SWITCH=`eval ${GET_NAME_SWITCH}`
+#echo "Name : " $NAME_SWITCH
+
+SWDIR="${OUTPUT_DIR}/${NAME_SWITCH}.lldpdir"
+mkdir -p ${SWDIR}
+
+FILE="${SWDIR}/$NAME_SWITCH.lldp"
+##eval ${GET_TABLE_SWITCH} | tail -n +4 > ${FILE}
+
+rm -rf ${SWDIR}/*.node
+
+eval ${GET_TABLE_SWITCH} | tail -n +4 | awk -F";" -v dir="$SWDIR" '
+{
+gsub(/\ /, "", $2);gsub(/\"/, "", $2);
+gsub(/\ /, "", $4);gsub(/\"/, "", $4);gsub(/\//, "_", $4);
+file=$2"@"$4
+
+printf ("RemChassisIdSubtype=\"%s\"\n", $1) >> dir"/"file".node";
+printf ("RemChassisId=\"%s\"\n", $2) >> dir"/"file".node";
+printf ("RemPortIdSubtype=\"%s\"\n", $3) >> dir"/"file".node";
+printf ("RemPortId=%s\n", $4) >> dir"/"file".node";
+printf ("RemPortDesc=\"%s\"\n", $5) >> dir"/"file".node";
+printf ("RemSysName=\"%s\"\n", $6) >> dir"/"file".node";
+printf ("RemSysDesc=\"%s\"\n", $7) >> dir"/"file".node";
+printf ("RemSysCapSupported=%s\n", $8) >> dir"/"file".node";
+printf ("RemSysCapEnabled=%s\n", $9) >> dir"/"file".node";
+printf ("\n") >> dir"/"file".node";
+
+}' 
+
+done
+
+# after takinf all data delete temp file
+rm -rf $OUTPUT
+
+

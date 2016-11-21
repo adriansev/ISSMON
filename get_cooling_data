@@ -1,0 +1,198 @@
+#!/bin/bash
+
+PWD_DIR=`dirname $0`
+
+ISSMON_DIR="$HOME/issmon"
+OUTPUT_DIR="$ISSMON_DIR/data/cooling"
+
+TEMP_FILE="/tmp/temp_snmp_data.txt"
+
+GET="snmpget"
+
+SNMP_COMMUNITY="-c iss-ro -v 2c -Pu"
+ARG3="-Oqv"
+
+OID_NOT_PRESENT="No Such Instance currently exists at this OID"
+
+NAME=".1.3.6.1.2.1.1.5.0"
+POWERNET=".1.3.6.1.4.1.318"
+
+model="${POWERNET}.1.1.27.1.3.2.1.3.1.1"
+
+# Supply Air Temperature
+supply_temp="${POWERNET}.1.1.27.1.4.1.2.1.3.1.2"
+
+# Return Air Temperature
+return_temp="${POWERNET}.1.1.27.1.4.1.2.1.3.1.4"
+
+# Rack Inlet Temperature
+rack_inlet_temp="${POWERNET}.1.1.27.1.4.1.2.1.3.1.6"
+
+# Cool demand (kW) (/10)
+cool_demand="${POWERNET}.1.1.27.1.4.1.2.1.3.1.9"
+
+# Cool output (kW) (/10)
+cool_output="${POWERNET}.1.1.27.1.4.1.2.1.3.1.10"
+
+# Airflow (CFM)
+airflow="${POWERNET}.1.1.27.1.4.1.2.1.3.1.11"
+
+# Fan Speed (%)
+fan_speed="${POWERNET}.1.1.27.1.4.1.2.1.3.1.12"
+
+# Unit Energy (kWh)
+unit_energy="${POWERNET}.1.1.27.1.4.1.2.1.3.1.13"
+
+# Unit Power (W)
+unit_power="${POWERNET}.1.1.27.1.4.1.2.1.3.1.14"
+
+# Cool demand (kW)
+cool_demand2="${POWERNET}.1.1.27.1.4.1.2.1.3.1.15"
+
+# Cool output (kW) 
+cool_output2="${POWERNET}.1.1.27.1.4.1.2.1.3.1.16"
+
+# Airflow (CFM)
+airflow2="${POWERNET}.1.1.27.1.4.1.2.1.3.1.17"
+
+# Entering Chilled Water Temperature (/10)
+in_chilled="${POWERNET}.1.1.27.1.6.1.2.1.3.1.4"
+
+# Leaving Chilled Water Temperature (/10)
+out_chilled="${POWERNET}.1.1.27.1.6.1.2.1.3.1.6"
+
+# Coil Chilled Water Temperature (/10)
+coil_chilled="${POWERNET}.1.1.27.1.6.1.2.1.3.1.8"
+
+
+## variabile pentru .185 (clima5)
+
+model_185="${POWERNET}.1.1.13.3.2.2.1.4.0"
+
+# Supply Air Temperature
+supply_temp_185="${POWERNET}.1.1.13.3.2.2.2.9.0"
+
+# Return Air Temperature
+return_temp_185="${POWERNET}.1.1.13.3.2.2.2.11.0"
+
+# Rack Inlet Temperature
+rack_inlet_temp_185="${POWERNET}.1.1.13.3.2.2.2.7.0"
+
+# Airflow (CFM)
+airflow_185="${POWERNET}.1.1.13.3.2.2.2.5.0"
+
+# Fan Speed (%) (/10)
+fan_speed_185="${POWERNET}.1.1.13.3.2.2.2.16.0"
+
+# Cool demand (kW)
+cool_demand_185="${POWERNET}.1.1.13.3.2.2.2.3.0"
+
+# Cool output (kW) 
+cool_output_185="${POWERNET}.1.1.13.3.2.2.2.2.0"
+
+# Entering Chilled Water Temperature (/10)
+in_chilled_185="${POWERNET}.1.1.13.3.2.2.2.24.0"
+
+# Leaving Chilled Water Temperature (/10)
+out_chilled_185="${POWERNET}.1.1.13.3.2.2.2.26.0"
+
+
+for cool in `cat $ISSMON_DIR/list_cooling`
+do
+  FILE="$OUTPUT_DIR/$cool.cooling"
+
+  if [[ "$cool" == "172.20.0.185" ]] ;then
+    SNMPOUT=`$GET $ARG3 $SNMP_COMMUNITY $cool \
+    $NAME \
+    $model_185 \
+    $supply_temp_185 \
+    $return_temp_185 \
+    $rack_inlet_temp_185 \
+    $cool_demand_185 \
+    $cool_output_185 \
+    $airflow_185 \
+    $fan_speed_185 \
+    $in_chilled_185 \
+    $out_chilled_185`
+
+#    echo; echo $SNMPOUT ; echo
+
+#: <<'COMMENT'
+
+    echo $SNMPOUT | awk  '
+    {
+    printf ("Name=%s\n", $1);
+    printf ("Model=%s\n", $2);
+    printf ("Supply_temp=%.1f\n", $3/10);
+    printf ("Return_temp=%.1f\n", $4/10);
+    printf ("Rack_inlet_temp=%.1f\n", $5/10);
+    printf ("Cool_demand=%.1f\n", $6/10);
+    printf ("Cool_output=%.1f\n", $7/10);
+    printf ("Airflow=%.1f\n", $8);
+    printf ("Fan_speed=%.1f\n", $9/10);
+    printf ("Unit_energy=0\n");
+    printf ("Unit_power=0\n");
+    printf ("Cool_demand2=0\n");
+    printf ("Cool_output2=0\n");
+    printf ("Airflow2=0\n");
+    printf ("in_chilled=%.1f\n", $10/10);
+    printf ("out_chilled=%.1f\n", $11/10);
+    printf ("coil_chilled=0\n");
+    } ' > $FILE
+
+#COMMENT
+
+  else 
+
+    SNMPOUT=`$GET $ARG3 $SNMP_COMMUNITY $cool \
+    $NAME \
+    $model \
+    $supply_temp \
+    $return_temp \
+    $rack_inlet_temp \
+    $cool_demand \
+    $cool_output \
+    $airflow \
+    $fan_speed \
+    $unit_energy \
+    $unit_power \
+    $cool_demand2 \
+    $cool_output2 \
+    $airflow2 \
+    $in_chilled \
+    $out_chilled \
+    $coil_chilled`
+
+#    echo; echo $SNMPOUT ; echo
+
+#: <<'COMMENT'
+
+    echo $SNMPOUT | awk  '
+    {
+    printf ("Name=%s\n", $1);
+    printf ("Model=%s\n", $2);
+    printf ("Supply_temp=%.1f\n", $3/10);
+    printf ("Return_temp=%.1f\n", $4/10);
+    printf ("Rack_inlet_temp=%.1f\n", $5/10);
+    printf ("Cool_demand=%.1f\n", $6/10);
+    printf ("Cool_output=%.1f\n", $7/10);
+    printf ("Airflow=%.1f\n", $8);
+    printf ("Fan_speed=%.1f\n", $9);
+    printf ("Unit_energy=%.1f\n", $10);
+    printf ("Unit_power=%.1f\n", $11);
+    printf ("Cool_demand2=%.1f\n", $12);
+    printf ("Cool_output2=%.1f\n", $13);
+    printf ("Airflow2=%.1f\n", $14);
+    printf ("in_chilled=%.1f\n", $15/10);
+    printf ("out_chilled=%.1f\n", $16/10);
+    printf ("coil_chilled=%.1f\n", $17/10);
+    } ' > $FILE
+
+#COMMENT
+
+  fi
+
+done
+
+
+

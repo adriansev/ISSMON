@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# SMART ATTRIB
+# 1   - Raw Read Error Rate
+# 5   - Reallocated Sector Count
+# 7   - Seek Error Rate
+# 194 - Temperature
+# 196 - Reallocation Event Count
+# 197 - Current Pending Sector Count
+# 198 - Off-line Scan Uncorrectable
+
+get_smart_from_file()
+{
+  awk '{
+      if ( $1 == 1 )   {print $1, "Raw_Read_Error_Rate", $(NF-4), $(NF-1);}
+      if ( $1 == 5 )   {print $1, "Reallocated_Sector_Count", $(NF-4), $(NF-1);}
+      if ( $1 == 7 )   {print $1, "Seek_Error_Rate", $(NF-4), $(NF-1);}
+      if ( $1 == 194 ) {print $1, "Temperature", $(NF-4), $(NF-1);}
+      if ( $1 == 196 ) {print $1, "Reallocation_Event_Count", $(NF-4), $(NF-1);}
+      if ( $1 == 197 ) {print $1, "Current_Pending_Sector_Count", $(NF-4), $(NF-1);}
+      if ( $1 == 198 ) {print $1, "Off-line_Scan_Uncorrectable", $(NF-4), $(NF-1);}
+    }' $1
+}
+
+
+
+DATADIR="/export/home/monalisa/issmon/data/raid_smart"
+RAWDATADIR=$DATADIR/raw
+
+##RAID_HOSTS="issaf storage01 storage02 storage03 storage04 storage05 storage06"
+RAID_HOSTS="issaf storage02 storage03 storage04 storage05 storage06"
+
+
+REMOTE_SMART_LOC="/raid_info/smart/"
+
+for host in $RAID_HOSTS
+do
+  if [ "$host" == "issaf" ] 
+  then
+    BASE_REMOTE_SMART_LOC="/export/"
+  else
+    BASE_REMOTE_SMART_LOC="/home/"
+  fi
+  mkdir -p $RAWDATADIR/$host
+  rsync -qau --delete $host:$BASE_REMOTE_SMART_LOC/$REMOTE_SMART_LOC $RAWDATADIR/$host/
+done
+
+
+
+for server in `ls -1 $RAWDATADIR`
+do
+  SHORTDIR="$DATADIR/short/$server.smart"
+  [ -d "$RAWDATADIR/$server" ] && mkdir -p $SHORTDIR || continue
+  cd $SHORTDIR
+  for hdd in `ls -1 $RAWDATADIR/$server/*.smart`
+  do
+    get_smart_from_file $hdd | column -t > $SHORTDIR/`basename $hdd`
+  done
+done
+
+

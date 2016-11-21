@@ -1,0 +1,123 @@
+#!/bin/bash
+
+#get_clean_param ()
+#{
+#/bin/grep -m 1 $1 $TMP_FILE | /bin/sed 's,'"$1"',,; s/:\ //mg '
+#}
+
+CONF="/etc/ganglia_ups/gmond.conf"
+
+SEND="/usr/bin/gmetric -c $CONF"
+
+UPS_DATA_DIR="/export/home/monalisa/issmon/data"
+
+LIFETIME="--tmax=240 --dmax=0"
+
+source ${UPS_DATA_DIR}/PDU.txt
+
+IP="172.20.0.192"
+PDU="PDU"
+
+SPOOF="$IP:PDU"
+
+  $SEND -S $SPOOF -H
+###################################################################################
+  $SEND -S $SPOOF -g "BR1" -n "br1_ph1_i"    -v $BR_1_1_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH1" -T "Amperage - PH1" $LIFETIME
+  $SEND -S $SPOOF -g "BR1" -n "br1_ph1_load" -v $BR_1_1_Load  -t "float"  -u "%"  -s "both" -D "Load - PH1"     -T "Load - PH1"     $LIFETIME
+  $SEND -S $SPOOF -g "BR1" -n "br1_ph1_pow"  -v $BR_1_1_Power -t "float"  -u "kW" -s "both" -D "Power - PH1"    -T "Power - PH1"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR1" -n "br1_ph2_i"    -v $BR_1_2_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH2" -T "Amperage - PH2" $LIFETIME
+  $SEND -S $SPOOF -g "BR1" -n "br1_ph2_load" -v $BR_1_2_Load  -t "float"  -u "%"  -s "both" -D "Load - PH2"     -T "Load - PH2"     $LIFETIME
+  $SEND -S $SPOOF -g "BR1" -n "br1_ph2_pow"  -v $BR_1_2_Power -t "float"  -u "kW" -s "both" -D "Power - PH2"    -T "Power - PH2"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR1" -n "br1_ph3_i"    -v $BR_1_3_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH3" -T "Amperage - PH3" $LIFETIME
+  $SEND -S $SPOOF -g "BR1" -n "br1_ph3_load" -v $BR_1_3_Load  -t "float"  -u "%"  -s "both" -D "Load - PH3"     -T "Load - PH3"     $LIFETIME
+  $SEND -S $SPOOF -g "BR1" -n "br1_ph3_pow"  -v $BR_1_3_Power -t "float"  -u "kW" -s "both" -D "Power - PH3"    -T "Power - PH3"    $LIFETIME
+###################################################################################
+  $SEND -S $SPOOF -g "BR2" -n "br2_ph1_i"    -v $BR_2_1_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH1" -T "Amperage - PH1" $LIFETIME
+  $SEND -S $SPOOF -g "BR2" -n "br2_ph1_load" -v $BR_2_1_Load  -t "float"  -u "%"  -s "both" -D "Load - PH1"     -T "Load - PH1"     $LIFETIME
+  $SEND -S $SPOOF -g "BR2" -n "br2_ph1_pow"  -v $BR_2_1_Power -t "float"  -u "kW" -s "both" -D "Power - PH1"    -T "Power - PH1"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR2" -n "br2_ph2_i"    -v $BR_2_2_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH2" -T "Amperage - PH2" $LIFETIME
+  $SEND -S $SPOOF -g "BR2" -n "br2_ph2_load" -v $BR_2_2_Load  -t "float"  -u "%"  -s "both" -D "Load - PH2"     -T "Load - PH2"     $LIFETIME
+  $SEND -S $SPOOF -g "BR2" -n "br2_ph2_pow"  -v $BR_2_2_Power -t "float"  -u "kW" -s "both" -D "Power - PH2"    -T "Power - PH2"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR2" -n "br2_ph3_i"    -v $BR_2_3_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH3" -T "Amperage - PH3" $LIFETIME
+  $SEND -S $SPOOF -g "BR2" -n "br2_ph3_load" -v $BR_2_3_Load  -t "float"  -u "%"  -s "both" -D "Load - PH3"     -T "Load - PH3"     $LIFETIME
+  $SEND -S $SPOOF -g "BR2" -n "br2_ph3_pow"  -v $BR_2_3_Power -t "float"  -u "kW" -s "both" -D "Power - PH3"    -T "Power - PH3"    $LIFETIME
+###################################################################################
+  $SEND -S $SPOOF -g "BR20" -n "br20_ph1_i"    -v $BR_20_1_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH1" -T "Amperage - PH1" $LIFETIME
+  $SEND -S $SPOOF -g "BR20" -n "br20_ph1_load" -v $BR_20_1_Load  -t "float"  -u "%"  -s "both" -D "Load - PH1"     -T "Load - PH1"     $LIFETIME
+  $SEND -S $SPOOF -g "BR20" -n "br20_ph1_pow"  -v $BR_20_1_Power -t "float"  -u "kW" -s "both" -D "Power - PH1"    -T "Power - PH1"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR20" -n "br20_ph2_i"    -v $BR_20_2_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH2" -T "Amperage - PH2" $LIFETIME
+  $SEND -S $SPOOF -g "BR20" -n "br20_ph2_load" -v $BR_20_2_Load  -t "float"  -u "%"  -s "both" -D "Load - PH2"     -T "Load - PH2"     $LIFETIME
+  $SEND -S $SPOOF -g "BR20" -n "br20_ph2_pow"  -v $BR_20_2_Power -t "float"  -u "kW" -s "both" -D "Power - PH2"    -T "Power - PH2"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR20" -n "br20_ph3_i"    -v $BR_20_3_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH3" -T "Amperage - PH3" $LIFETIME
+  $SEND -S $SPOOF -g "BR20" -n "br20_ph3_load" -v $BR_20_3_Load  -t "float"  -u "%"  -s "both" -D "Load - PH3"     -T "Load - PH3"     $LIFETIME
+  $SEND -S $SPOOF -g "BR20" -n "br20_ph3_pow"  -v $BR_20_3_Power -t "float"  -u "kW" -s "both" -D "Power - PH3"    -T "Power - PH3"    $LIFETIME
+###################################################################################
+  $SEND -S $SPOOF -g "BR21" -n "br21_ph1_i"    -v $BR_21_1_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH1" -T "Amperage - PH1" $LIFETIME
+  $SEND -S $SPOOF -g "BR21" -n "br21_ph1_load" -v $BR_21_1_Load  -t "float"  -u "%"  -s "both" -D "Load - PH1"     -T "Load - PH1"     $LIFETIME
+  $SEND -S $SPOOF -g "BR21" -n "br21_ph1_pow"  -v $BR_21_1_Power -t "float"  -u "kW" -s "both" -D "Power - PH1"    -T "Power - PH1"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR21" -n "br21_ph2_i"    -v $BR_21_2_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH2" -T "Amperage - PH2" $LIFETIME
+  $SEND -S $SPOOF -g "BR21" -n "br21_ph2_load" -v $BR_21_2_Load  -t "float"  -u "%"  -s "both" -D "Load - PH2"     -T "Load - PH2"     $LIFETIME
+  $SEND -S $SPOOF -g "BR21" -n "br21_ph2_pow"  -v $BR_21_2_Power -t "float"  -u "kW" -s "both" -D "Power - PH2"    -T "Power - PH2"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR21" -n "br21_ph3_i"    -v $BR_21_3_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH3" -T "Amperage - PH3" $LIFETIME
+  $SEND -S $SPOOF -g "BR21" -n "br21_ph3_load" -v $BR_21_3_Load  -t "float"  -u "%"  -s "both" -D "Load - PH3"     -T "Load - PH3"     $LIFETIME
+  $SEND -S $SPOOF -g "BR21" -n "br21_ph3_pow"  -v $BR_21_3_Power -t "float"  -u "kW" -s "both" -D "Power - PH3"    -T "Power - PH3"    $LIFETIME
+###################################################################################
+  $SEND -S $SPOOF -g "BR22" -n "br22_ph1_i"    -v $BR_22_1_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH1" -T "Amperage - PH1" $LIFETIME
+  $SEND -S $SPOOF -g "BR22" -n "br22_ph1_load" -v $BR_22_1_Load  -t "float"  -u "%"  -s "both" -D "Load - PH1"     -T "Load - PH1"     $LIFETIME
+  $SEND -S $SPOOF -g "BR22" -n "br22_ph1_pow"  -v $BR_22_1_Power -t "float"  -u "kW" -s "both" -D "Power - PH1"    -T "Power - PH1"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR22" -n "br22_ph2_i"    -v $BR_22_2_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH2" -T "Amperage - PH2" $LIFETIME
+  $SEND -S $SPOOF -g "BR22" -n "br22_ph2_load" -v $BR_22_2_Load  -t "float"  -u "%"  -s "both" -D "Load - PH2"     -T "Load - PH2"     $LIFETIME
+  $SEND -S $SPOOF -g "BR22" -n "br22_ph2_pow"  -v $BR_22_2_Power -t "float"  -u "kW" -s "both" -D "Power - PH2"    -T "Power - PH2"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR22" -n "br22_ph3_i"    -v $BR_22_3_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH3" -T "Amperage - PH3" $LIFETIME
+  $SEND -S $SPOOF -g "BR22" -n "br22_ph3_load" -v $BR_22_3_Load  -t "float"  -u "%"  -s "both" -D "Load - PH3"     -T "Load - PH3"     $LIFETIME
+  $SEND -S $SPOOF -g "BR22" -n "br22_ph3_pow"  -v $BR_22_3_Power -t "float"  -u "kW" -s "both" -D "Power - PH3"    -T "Power - PH3"    $LIFETIME
+###################################################################################
+  $SEND -S $SPOOF -g "BR23" -n "br23_ph1_i"    -v $BR_23_1_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH1" -T "Amperage - PH1" $LIFETIME
+  $SEND -S $SPOOF -g "BR23" -n "br23_ph1_load" -v $BR_23_1_Load  -t "float"  -u "%"  -s "both" -D "Load - PH1"     -T "Load - PH1"     $LIFETIME
+  $SEND -S $SPOOF -g "BR23" -n "br23_ph1_pow"  -v $BR_23_1_Power -t "float"  -u "kW" -s "both" -D "Power - PH1"    -T "Power - PH1"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR23" -n "br23_ph2_i"    -v $BR_23_2_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH2" -T "Amperage - PH2" $LIFETIME
+  $SEND -S $SPOOF -g "BR23" -n "br23_ph2_load" -v $BR_23_2_Load  -t "float"  -u "%"  -s "both" -D "Load - PH2"     -T "Load - PH2"     $LIFETIME
+  $SEND -S $SPOOF -g "BR23" -n "br23_ph2_pow"  -v $BR_23_2_Power -t "float"  -u "kW" -s "both" -D "Power - PH2"    -T "Power - PH2"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR23" -n "br23_ph3_i"    -v $BR_23_3_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH3" -T "Amperage - PH3" $LIFETIME
+  $SEND -S $SPOOF -g "BR23" -n "br23_ph3_load" -v $BR_23_3_Load  -t "float"  -u "%"  -s "both" -D "Load - PH3"     -T "Load - PH3"     $LIFETIME
+  $SEND -S $SPOOF -g "BR23" -n "br23_ph3_pow"  -v $BR_23_3_Power -t "float"  -u "kW" -s "both" -D "Power - PH3"    -T "Power - PH3"    $LIFETIME
+###################################################################################
+  $SEND -S $SPOOF -g "BR24" -n "br24_ph1_i"    -v $BR_24_1_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH1" -T "Amperage - PH1" $LIFETIME
+  $SEND -S $SPOOF -g "BR24" -n "br24_ph1_load" -v $BR_24_1_Load  -t "float"  -u "%"  -s "both" -D "Load - PH1"     -T "Load - PH1"     $LIFETIME
+  $SEND -S $SPOOF -g "BR24" -n "br24_ph1_pow"  -v $BR_24_1_Power -t "float"  -u "kW" -s "both" -D "Power - PH1"    -T "Power - PH1"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR24" -n "br24_ph2_i"    -v $BR_24_2_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH2" -T "Amperage - PH2" $LIFETIME
+  $SEND -S $SPOOF -g "BR24" -n "br24_ph2_load" -v $BR_24_2_Load  -t "float"  -u "%"  -s "both" -D "Load - PH2"     -T "Load - PH2"     $LIFETIME
+  $SEND -S $SPOOF -g "BR24" -n "br24_ph2_pow"  -v $BR_24_2_Power -t "float"  -u "kW" -s "both" -D "Power - PH2"    -T "Power - PH2"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR24" -n "br24_ph3_i"    -v $BR_24_3_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH3" -T "Amperage - PH3" $LIFETIME
+  $SEND -S $SPOOF -g "BR24" -n "br24_ph3_load" -v $BR_24_3_Load  -t "float"  -u "%"  -s "both" -D "Load - PH3"     -T "Load - PH3"     $LIFETIME
+  $SEND -S $SPOOF -g "BR24" -n "br24_ph3_pow"  -v $BR_24_3_Power -t "float"  -u "kW" -s "both" -D "Power - PH3"    -T "Power - PH3"    $LIFETIME
+###################################################################################
+
+#  -n, --name=STRING     Name of the metric
+#  -v, --value=STRING    Value of the metric
+#  -t, --type=STRING     Either string|int8|uint8|int16|uint16|int32|uint32|float|double
+#  -u, --units=STRING    Unit of measure for the value e.g. Kilobytes, Celcius (default=`')
+#  -s, --slope=STRING    Either zero|positive|negative|both  (default=`both')
+#  -x, --tmax=INT        The maximum time in seconds between gmetric calls  (default=`60')
+#  -d, --dmax=INT        The lifetime in seconds of this metric  (default=`0')
+#  -g, --group=STRING    Group(s) of the metric (comma-separated)
+#  -C, --cluster=STRING  Cluster of the metric
+#  -D, --desc=STRING     Description of the metric
+#  -T, --title=STRING    Title of the metric
+#  -S, --spoof=STRING    IP address and name of host/device (colon separated) we are spoofing  (default=`')
+#  -H, --heartbeat       spoof a heartbeat message (use with spoof option)
+

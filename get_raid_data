@@ -1,0 +1,58 @@
+#!/bin/bash
+
+PWD_DIR=`dirname $0`
+
+ISSMON_DIR="$HOME/issmon"
+OUTPUT_DIR="$ISSMON_DIR/data/raid"
+
+TABLE="snmptable "
+GET="snmpget "
+WALK="snmpwalk "
+
+SNMP_COMMUNITY="-c iss-ro -v 2c -Pu"
+
+ARG_TABLE="-r 1 -t 0.5 -Le -Cl -Cb -CH"
+ARG2="-r 1 -t 0.5 -CB -Cf \" ; \" "
+ARG3="-r 1 -t 0.5 -Oq -Ov"
+ARG4=" 2>/dev/null"
+
+NAME=" .1.3.6.1.2.1.1.5.0"
+
+MODEL=" siVendor.0"
+RAID=" raidInfoTable"
+VOL=" volInfoTable"
+EVENT=" eventInfoTable"
+
+## type1 - sata ; type2 - sas
+TYPE1=" -IS ARECA-SNMP-MIB-SATA:: "
+TYPE2=" -IS ARECA-SNMP-MIB-SAS:: "
+
+for raid in `cat $ISSMON_DIR/list_raid`
+do
+  FILE=$raid
+
+  NAME_RAID=`$GET $ARG3 $SNMP_COMMUNITY $raid $NAME | sed 's/^\ //;s/\ /_/g'`
+  [ -z "$NAME_RAID" ] && continue
+
+  TYPE=$TYPE1
+
+  if [ "$NAME_RAID" = "storage06" ] 
+  then
+    TYPE=$TYPE2
+  fi
+
+  CARD=`$GET $ARG3 $SNMP_COMMUNITY $raid $TYPE $MODEL | sed 's/\"//g'`
+
+  echo $NAME_RAID >  $OUTPUT_DIR/${FILE}.raid
+  echo $CARD      >> $OUTPUT_DIR/${FILE}.raid
+
+  TBL_RAID="$TABLE $ARG_TABLE $SNMP_COMMUNITY $raid $TYPE $RAID"
+  eval $TBL_RAID >> $OUTPUT_DIR/${FILE}.raid
+
+  TBL_VOL="$TABLE $ARG_TABLE $SNMP_COMMUNITY $raid $TYPE $VOL"
+  eval $TBL_VOL > $OUTPUT_DIR/${FILE}.vol
+
+  TBL_EV="$TABLE $ARG_TABLE $SNMP_COMMUNITY $raid $TYPE $EVENT"
+  eval $TBL_EV > $OUTPUT_DIR/${FILE}.events
+done
+

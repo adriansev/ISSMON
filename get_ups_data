@@ -1,0 +1,152 @@
+#!/bin/bash
+
+PWD_DIR=`dirname $0`
+
+UPS="172.20.0.191"
+
+ISSMON_DIR="$HOME/issmon"
+OUTPUT_DIR="$ISSMON_DIR/data"
+
+TEMP_FILE="/tmp/temp_snmp_data.txt"
+
+FILE="$OUTPUT_DIR/UPS.txt"
+
+GET="snmpget"
+
+SNMP_COMMUNITY="-c iss-ro -v 2c -Pu"
+ARG3="-Oqv"
+
+OID_NOT_PRESENT="No Such Instance currently exists at this OID"
+
+NAME=".1.3.6.1.2.1.1.5.0"
+POWERNET=".1.3.6.1.4.1.318"
+
+upsBasicIdentModel="${POWERNET}.1.1.1.1.1.1.0"
+
+# Percentage Battery Capacity - upsAdvBatteryCapacity.0
+     upsAdvBatteryCapacity="${POWERNET}.1.1.1.2.2.1.0"
+upsHighPrecBatteryCapacity="${POWERNET}.1.1.1.2.3.1.0"
+
+# Temp in Celsius - upsAdvBatteryTemperature.0
+     upsAdvBatteryTemperature="${POWERNET}.1.1.1.2.2.2.0"
+upsHighPrecBatteryTemperature="${POWERNET}.1.1.1.2.3.2.0"
+
+# Time remaining on battery in time ticks…. /100 /60=minutes - upsAdvBatteryRunTimeRemaining.0
+upsAdvBatteryRunTimeRemaining="${POWERNET}.1.1.1.2.2.3.0"
+
+upsAdvBatteryReplaceIndicator="${POWERNET}.1.1.1.2.2.4.0"
+
+upsHighPrecBatteryActualVoltage="${POWERNET}.1.1.1.2.3.4.0"
+
+upsReason4LastTransfer="${POWERNET}.1.1.1.3.2.5.0"
+
+# Phase Input Voltage - upsPhaseInputVoltage.1.1.1
+upsPhaseInputVoltage1="${POWERNET}.1.1.1.9.2.3.1.3.1.1.1"
+upsPhaseInputVoltage2="${POWERNET}.1.1.1.9.2.3.1.3.1.1.2"
+upsPhaseInputVoltage3="${POWERNET}.1.1.1.9.2.3.1.3.1.1.3"
+
+# Phase Input Current - upsPhaseInputCurrent.1.1.1
+upsPhaseInputCurrent1="${POWERNET}.1.1.1.9.2.3.1.6.1.1.1"
+upsPhaseInputCurrent2="${POWERNET}.1.1.1.9.2.3.1.6.1.1.2"
+upsPhaseInputCurrent3="${POWERNET}.1.1.1.9.2.3.1.6.1.1.3"
+
+# Phase Output Voltage - upsPhaseOutputVoltage.1.1.1
+upsPhaseOutputVoltage1="${POWERNET}.1.1.1.9.3.3.1.3.1.1.1"
+upsPhaseOutputVoltage2="${POWERNET}.1.1.1.9.3.3.1.3.1.1.2"
+upsPhaseOutputVoltage3="${POWERNET}.1.1.1.9.3.3.1.3.1.1.3"
+
+# Phase Output Current - upsPhaseOutputCurrent.1.1.1
+upsPhaseOutputCurrent1="${POWERNET}.1.1.1.9.3.3.1.4.1.1.1"
+upsPhaseOutputCurrent2="${POWERNET}.1.1.1.9.3.3.1.4.1.1.2"
+upsPhaseOutputCurrent3="${POWERNET}.1.1.1.9.3.3.1.4.1.1.3"
+
+# Phase Output Load kVA - upsPhaseOutputLoad.1.1.1
+upsPhaseOutputLoad1="${POWERNET}.1.1.1.9.3.3.1.7.1.1.1"
+upsPhaseOutputLoad2="${POWERNET}.1.1.1.9.3.3.1.7.1.1.2"
+upsPhaseOutputLoad3="${POWERNET}.1.1.1.9.3.3.1.7.1.1.3"
+
+# Output Load Percentage - upsPhaseOutputPercentLoad.1.1.1
+upsPhaseOutputPercentLoad1="${POWERNET}.1.1.1.9.3.3.1.10.1.1.1"
+upsPhaseOutputPercentLoad2="${POWERNET}.1.1.1.9.3.3.1.10.1.1.2"
+upsPhaseOutputPercentLoad3="${POWERNET}.1.1.1.9.3.3.1.10.1.1.3"
+
+# Output Min Load Percentage - upsPhaseOutputMinPercentLoad.1.1.1
+upsPhaseOutputMinPercentLoad1="${POWERNET}.1.1.1.9.3.3.1.12.1.1.1"
+upsPhaseOutputMinPercentLoad2="${POWERNET}.1.1.1.9.3.3.1.12.1.1.2"
+upsPhaseOutputMinPercentLoad3="${POWERNET}.1.1.1.9.3.3.1.12.1.1.3"
+
+# Output Max Load Percentage - upsPhaseOutputMaxPercentLoad.1.1.1
+upsPhaseOutputMinPercentLoad1="${POWERNET}.1.1.1.9.3.3.1.11.1.1.1"
+upsPhaseOutputMinPercentLoad2="${POWERNET}.1.1.1.9.3.3.1.11.1.1.2"
+upsPhaseOutputMinPercentLoad3="${POWERNET}.1.1.1.9.3.3.1.11.1.1.3"
+
+
+SNMPOUT=`$GET $ARG3 $SNMP_COMMUNITY $UPS \
+$NAME \
+$upsBasicIdentModel \
+$upsAdvBatteryRunTimeRemaining \
+$upsAdvBatteryReplaceIndicator \
+$upsHighPrecBatteryCapacity \
+$upsHighPrecBatteryTemperature \
+$upsReason4LastTransfer \
+$upsPhaseInputVoltage1 \
+$upsPhaseInputVoltage2 \
+$upsPhaseInputVoltage3 \
+$upsPhaseInputCurrent1 \
+$upsPhaseInputCurrent2 \
+$upsPhaseInputCurrent3 \
+$upsPhaseOutputVoltage1 \
+$upsPhaseOutputVoltage2 \
+$upsPhaseOutputVoltage3 \
+$upsPhaseOutputCurrent1 \
+$upsPhaseOutputCurrent2 \
+$upsPhaseOutputCurrent3 \
+$upsPhaseOutputLoad1 \
+$upsPhaseOutputLoad2 \
+$upsPhaseOutputLoad3 \
+$upsPhaseOutputPercentLoad1 \
+$upsPhaseOutputPercentLoad2 \
+$upsPhaseOutputPercentLoad3`
+
+##echo $SNMPOUT
+
+#: <<'COMMENT'
+ 
+  echo $SNMPOUT | awk  '
+  BEGIN { model=""; u = 0;}
+  {
+  for ( i = 1; i <= NF; i++)
+    {
+    if ( index($i,"\"") == 1 ) { model = ($i); continue; }
+    if ( index($i,"\"") == length($i) ) { model = (model)("_")($i); break; }  
+    model = (model)("_")($i);
+    }
+  printf ("UPS_Name=%s\n", $1);
+  printf ("UPS_Model=%s\n", model);
+  printf ("BAT_Runtime=%s\n", $4);
+  printf ("BAT_Replace=%s\n", $5);
+  printf ("BAT_Cap=%.1f\n", $6/10);
+  printf ("BAT_Temp=%.1f\n", $7/10);
+  printf ("UPS_LastTransfer=%s\n", $8);
+  printf ("UPS_IN_V1=%.1f\n", $9);
+  printf ("UPS_IN_V2=%.1f\n", $10);
+  printf ("UPS_IN_V3=%.1f\n", $11);
+  printf ("UPS_IN_I1=%.1f\n", $12/10);
+  printf ("UPS_IN_I2=%.1f\n", $13/10);
+  printf ("UPS_IN_I3=%.1f\n", $14/10);
+  printf ("UPS_OUT_V1=%.1f\n", $15);
+  printf ("UPS_OUT_V2=%.1f\n", $16);
+  printf ("UPS_OUT_V3=%.1f\n", $17);
+  printf ("UPS_OUT_I1=%.1f\n", $18/10);
+  printf ("UPS_OUT_I2=%.1f\n", $19/10);
+  printf ("UPS_OUT_I3=%.1f\n", $20/10);
+  printf ("UPS_OUT_LOAD1=%.1f\n", $21);
+  printf ("UPS_OUT_LOAD2=%.1f\n", $22);
+  printf ("UPS_OUT_LOAD3=%.1f\n", $23);
+  printf ("UPS_OUT_LOAD1_P100=%.1f\n", $24);
+  printf ("UPS_OUT_LOAD2_P100=%.1f\n", $25);
+  printf ("UPS_OUT_LOAD3_P100=%.1f\n", $26);
+  }' > $FILE
+
+#COMMENT
+

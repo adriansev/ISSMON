@@ -1,0 +1,251 @@
+#!/bin/bash
+
+exec 200<$0
+flock -n 200 || exit 1
+
+DAY=`date +%d.%m.%Y`
+TIME=`date +%k:%M:%S%Z`
+
+NOW="${DAY}  ${TIME}"
+
+##echo ${NOW}
+
+ISSMON_DIR="/export/home/monalisa/issmon"
+OUTPUT_DIR="$ISSMON_DIR/data"
+
+FILE_TEMPLATE="${ISSMON_DIR}/ISS-DC_template.png"
+FILE="${OUTPUT_DIR}/ISS-DC_tmp.png"
+FILE_FINAL="${OUTPUT_DIR}/ISS-DC.png"
+
+TMP1="${ISSMON_DIR}/tmp1.png"
+TMP2="${ISSMON_DIR}/tmp2.png"
+TMP3="${ISSMON_DIR}/tmp3.png"
+TMP4="${ISSMON_DIR}/tmp4.png"
+TMP5="${ISSMON_DIR}/tmp5.png"
+
+cp ${FILE_TEMPLATE} ${FILE}
+
+source ${OUTPUT_DIR}/UPS.txt
+source ${OUTPUT_DIR}/PDU.txt
+
+COLOR="blue"
+
+load_total=`echo "$UPS_OUT_LOAD1 + $UPS_OUT_LOAD2 + $UPS_OUT_LOAD3" | bc -l`
+
+convert -size 140x140 -transparent white -fill ${COLOR} -font Liberation-Sans -gravity east -pointsize 17  -trim  \
+label:"$UPS_OUT_LOAD1\n$UPS_OUT_LOAD2\n$UPS_OUT_LOAD3" ${TMP1}
+
+convert  -size 140x140 -transparent white -font Liberation-Sans -fill ${COLOR} -gravity east -pointsize 17 -trim \
+label:"$UPS_OUT_LOAD1_P100\n$UPS_OUT_LOAD2_P100\n$UPS_OUT_LOAD3_P100" ${TMP2}
+
+######  BR Intensity (A)
+convert -size 840x840 -transparent white -font Liberation-Sans -fill ${COLOR} -gravity west -pointsize 17 label:"
+BR_1_1_I=$BR_1_1_I A
+BR_1_2_I=$BR_1_2_I A
+BR_1_3_I=$BR_1_3_I A\n
+BR_2_1_I=$BR_2_1_I A
+BR_2_2_I=$BR_2_2_I A
+BR_2_3_I=$BR_2_3_I A\n
+BR_20_1_I=$BR_20_1_I A
+BR_20_2_I=$BR_20_2_I A
+BR_20_3_I=$BR_20_3_I A\n
+BR_21_1_I=$BR_21_1_I A
+BR_21_2_I=$BR_21_2_I A
+BR_21_3_I=$BR_21_3_I A\n
+BR_22_1_I=$BR_22_1_I A
+BR_22_2_I=$BR_22_2_I A
+BR_22_3_I=$BR_22_3_I A\n
+BR_23_1_I=$BR_23_1_I A
+BR_23_2_I=$BR_23_2_I A
+BR_23_3_I=$BR_23_3_I A\n
+BR_24_1_I=$BR_24_1_I A
+BR_24_2_I=$BR_24_2_I A
+BR_24_3_I=$BR_24_3_I A\n
+" -trim ${TMP3}
+
+######  BR Load (%)
+convert -size 840x840 -transparent white -font Liberation-Sans -fill ${COLOR} -gravity west -pointsize 17 label:"
+BR_1_1_Load=$BR_1_1_Load%
+BR_1_2_Load=$BR_1_2_Load%
+BR_1_3_Load=$BR_1_3_Load\%\n
+BR_2_1_Load=$BR_2_1_Load%
+BR_2_2_Load=$BR_2_2_Load%
+BR_2_3_Load=$BR_2_3_Load\%\n
+BR_20_1_Load=$BR_20_1_Load%
+BR_20_2_Load=$BR_20_2_Load%
+BR_20_3_Load=$BR_20_3_Load\%\n
+BR_21_1_Load=$BR_21_1_Load%
+BR_21_2_Load=$BR_21_2_Load%
+BR_21_3_Load=$BR_21_3_Load\%\n
+BR_22_1_Load=$BR_22_1_Load%
+BR_22_2_Load=$BR_22_2_Load%
+BR_22_3_Load=$BR_22_3_Load\%\n
+BR_23_1_Load=$BR_23_1_Load%
+BR_23_2_Load=$BR_23_2_Load%
+BR_23_3_Load=$BR_23_3_Load\%\n
+BR_24_1_Load=$BR_24_1_Load%
+BR_24_2_Load=$BR_24_2_Load%
+BR_24_3_Load=$BR_24_3_Load\%\n
+" -trim ${TMP4}
+
+######  BR Power (kW)
+convert -size 840x840 -transparent white -font Liberation-Sans -fill ${COLOR} -gravity west -pointsize 17 label:"
+BR_1_1_Power=$BR_1_1_Power kW
+BR_1_2_Power=$BR_1_2_Power kW
+BR_1_3_Power=$BR_1_3_Power kW\n
+BR_2_1_Power=$BR_2_1_Power kW
+BR_2_2_Power=$BR_2_2_Power kW
+BR_2_3_Power=$BR_2_3_Power kW\n
+BR_20_1_Power=$BR_20_1_Power kW
+BR_20_2_Power=$BR_20_2_Power kW
+BR_20_3_Power=$BR_20_3_Power kW\n
+BR_21_1_Power=$BR_21_1_Power kW
+BR_21_2_Power=$BR_21_2_Power kW
+BR_21_3_Power=$BR_21_3_Power kW\n
+BR_22_1_Power=$BR_22_1_Power kW
+BR_22_2_Power=$BR_22_2_Power kW
+BR_22_3_Power=$BR_22_3_Power kW\n
+BR_23_1_Power=$BR_23_1_Power kW
+BR_23_2_Power=$BR_23_2_Power kW
+BR_23_3_Power=$BR_23_3_Power kW\n
+BR_24_1_Power=$BR_24_1_Power kW
+BR_24_2_Power=$BR_24_2_Power kW
+BR_24_3_Power=$BR_24_3_Power kW\n
+" -trim ${TMP5}
+
+############################################################
+#### TEMPERATURES
+
+COLOR_R1="blue" ; COLOR_I1="blue" ; COLOR_S1="blue"
+COLOR_R2="blue" ; COLOR_I2="blue" ; COLOR_S2="blue"
+COLOR_R3="blue" ; COLOR_I3="blue" ; COLOR_S3="blue"
+COLOR_R4="blue" ; COLOR_I4="blue" ; COLOR_S4="blue"
+COLOR_R5="blue" ; COLOR_I5="blue" ; COLOR_S5="blue"
+
+# CLIMA4
+source ${OUTPUT_DIR}/cooling/172.20.0.184.cooling
+ret4=${Return_temp}
+sup4=${Supply_temp}
+inlet4=${Rack_inlet_temp}
+
+# CLIMA3
+source ${OUTPUT_DIR}/cooling/172.20.0.183.cooling
+ret3=${Return_temp}
+sup3=${Supply_temp}
+inlet3=${Rack_inlet_temp}
+
+# CLIMA2
+source ${OUTPUT_DIR}/cooling/172.20.0.182.cooling
+ret2=${Return_temp}
+sup2=${Supply_temp}
+inlet2=${Rack_inlet_temp}
+
+# CLIMA5
+source ${OUTPUT_DIR}/cooling/172.20.0.185.cooling
+ret5=${Return_temp}
+sup5=${Supply_temp}
+inlet5=${Rack_inlet_temp}
+
+# CLIMA1
+source ${OUTPUT_DIR}/cooling/172.20.0.181.cooling
+ret1=${Return_temp}
+sup1=${Supply_temp}
+inlet1=${Rack_inlet_temp}
+
+#########################################################################
+(( $(echo "$ret1 > 35" | bc -l) )) && COLOR_R1="red"
+(( $(echo "$sup1 > 30" | bc -l) )) && COLOR_S1="red"
+(( $(echo "$inlet1 > 30" | bc -l) )) && COLOR_I1="red"
+
+(( $(echo "$ret2 > 35" | bc -l) )) && COLOR_R2="red"
+(( $(echo "$sup2 > 30" | bc -l) )) && COLOR_S2="red"
+(( $(echo "$inlet2 > 30" | bc -l) )) && COLOR_I2="red"
+
+(( $(echo "$ret3 > 35" | bc -l) )) && COLOR_R3="red"
+(( $(echo "$sup3 > 30" | bc -l) )) && COLOR_S3="red"
+(( $(echo "$inlet3 > 30" | bc -l) )) && COLOR_I3="red"
+
+(( $(echo "$ret4 > 35" | bc -l) )) && COLOR_R4="red"
+(( $(echo "$sup4 > 30" | bc -l) )) && COLOR_S4="red"
+(( $(echo "$inlet4 > 30" | bc -l) )) && COLOR_I4="red"
+
+(( $(echo "$ret5 > 35" | bc -l) )) && COLOR_R5="red"
+(( $(echo "$sup5 > 30" | bc -l) )) && COLOR_S5="red"
+(( $(echo "$inlet5 > 30" | bc -l) )) && COLOR_I5="red"
+#########################################################################
+
+##########
+composite -geometry +953+625 ${TMP1} ${FILE} ${FILE} ## UPS Load
+composite -geometry +968+693 ${TMP2} ${FILE} ${FILE} ## UPS Load % 
+composite -geometry +590+40  ${TMP3} ${FILE} ${FILE} ## BR Intensity
+composite -geometry +745+40  ${TMP4} ${FILE} ${FILE} ## BR Load
+composite -geometry +930+40  ${TMP5} ${FILE} ${FILE} ## BR Power
+
+#composite -geometry +953+625 ${TMP1} ${FILE} ${FILE} ## UPS Load
+#composite -geometry +968+693 ${TMP2} ${FILE} ${FILE} ## UPS Load % 
+#composite -geometry +610+40  ${TMP3} ${FILE} ${FILE} ## BR Intensity
+#composite -geometry +765+40  ${TMP4} ${FILE} ${FILE} ## BR Load
+#composite -geometry +950+40  ${TMP5} ${FILE} ${FILE} ## BR Power
+
+
+#composite ${FILE} \
+#-geometry +953+625 ${TMP1} \
+#-geometry +968+693 ${TMP2} \
+#-geometry +610+40 ${TMP3} \
+#-geometry +765+40 ${TMP4} \
+#-geometry +950+40 ${TMP5} \
+#${FILE}
+
+
+convert -font Liberation-Sans \
+-fill black -pointsize 24 -annotate +431+26 "${NOW}" \
+-fill ${COLOR} -pointsize 17 -annotate +939+790 $BAT_Cap \
+-fill ${COLOR} -pointsize 17 -annotate +917+807 $BAT_Replace \
+-fill ${COLOR} -pointsize 17 -annotate +932+825 $BAT_Runtime \
+-fill ${COLOR} -pointsize 17 -annotate +973+843 $BAT_Temp \
+-fill ${COLOR} -pointsize 20 -annotate +825+610 "Total = $load_total W" \
+-fill ${COLOR} -pointsize 17 -annotate 270x270+560+830 "BR_22_2 =  $BR_22_2_Power kW  $BR_22_2_Load%" \
+-fill ${COLOR} -pointsize 17 -annotate 270x270+423+830 "BR_23_1 =  $BR_23_1_Power kW  $BR_23_1_Load%" \
+-fill ${COLOR} -pointsize 17 -annotate 270x270+375+830 "BR_24_1 =  $BR_24_1_Power kW  $BR_24_1_Load%" \
+-fill ${COLOR} -pointsize 17 -annotate 270x270+285+830 "BR_23_2 =  $BR_23_2_Power kW  $BR_23_2_Load%" \
+-fill ${COLOR} -pointsize 17 -annotate 270x270+234+830 "BR_24_2 =  $BR_24_2_Power kW  $BR_24_2_Load%" \
+-fill ${COLOR} -pointsize 17 -annotate 270x270+149+830 "BR_23_3 =  $BR_23_3_Power kW  $BR_23_3_Load%" \
+-fill ${COLOR} -pointsize 17 -annotate 270x270+98+830  "BR_24_3 =  $BR_24_3_Power kW  $BR_24_3_Load%" \
+-fill ${COLOR} -pointsize 17 -annotate 270x270+284+350 "BR_21_3 =  $BR_21_3_Power kW  $BR_21_3_Load%" \
+-fill ${COLOR} -pointsize 17 -annotate 270x270+234+350 "BR_20_3 =  $BR_20_3_Power kW  $BR_20_3_Load%" \
+-fill ${COLOR_S4} -pointsize 16 -annotate +165+56 $sup4 \
+-fill ${COLOR_I4} -pointsize 16 -annotate +194+76 $inlet4 \
+-fill ${COLOR_R4} -pointsize 16 -annotate +163+454 $ret4 \
+-fill ${COLOR_R4} -pointsize 16 -annotate 270x270+193+200 'CLIMA4' \
+-fill ${COLOR_S3} -pointsize 16 -annotate +431+56 $sup3 \
+-fill ${COLOR_I3} -pointsize 16 -annotate +465+76 $inlet3 \
+-fill ${COLOR_R3} -pointsize 16 -annotate +439+454 $ret3 \
+-fill ${COLOR_R3} -pointsize 16 -annotate 270x270+470+200 'CLIMA3' \
+-fill ${COLOR_R1} -pointsize 16 -annotate +173+571 $ret1 \
+-fill ${COLOR_S1} -pointsize 16 -annotate +167+910 $sup1 \
+-fill ${COLOR_I1} -pointsize 16 -annotate +200+930 $inlet1 \
+-fill ${COLOR_R1} -pointsize 16 -annotate 270x270+193+670 'CLIMA1' \
+-fill ${COLOR_R5} -pointsize 16 -annotate +307+571 $ret5 \
+-fill ${COLOR_S5} -pointsize 16 -annotate +377+910 $sup5 \
+-fill ${COLOR_I5} -pointsize 16 -annotate +410+930 $inlet5 \
+-fill ${COLOR_R5} -pointsize 16 -annotate 270x270+331+670 'CLIMA5' \
+-fill ${COLOR_R2} -pointsize 16 -annotate +444+571 $ret2 \
+-fill ${COLOR_S2} -pointsize 16 -annotate +585+910 $sup2 \
+-fill ${COLOR_I2} -pointsize 16 -annotate +620+930 $inlet2 \
+-fill ${COLOR_R2} -pointsize 16 -annotate 270x270+468+670 'CLIMA2' \
+${FILE} ${FILE}
+
+
+rm -f ${TMP1} ${TMP2} ${TMP3} ${TMP4} ${TMP5}
+mv -f ${FILE} ${FILE_FINAL}
+
+
+
+
+
+
+
+
+
+
+

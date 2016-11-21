@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#get_clean_param ()
+#{
+#/bin/grep -m 1 $1 $TMP_FILE | /bin/sed 's,'"$1"',,; s/:\ //mg '
+#}
+
+CONF="/etc/ganglia_ups/gmond.conf"
+
+SEND="/usr/bin/gmetric -c $CONF"
+
+UPS_DATA_DIR="/export/home/monalisa/issmon/data"
+
+LIFETIME="--tmax=900 --dmax=0"
+
+source ${UPS_DATA_DIR}/UPS.txt
+
+ups_name_low="$(echo $UPS_Name | tr '[:upper:]' '[:lower:]')"
+
+IP="172.20.0.191"
+
+  SPOOF=$IP":"$ups_name_low
+
+  $SEND -S $SPOOF -H
+  $SEND -S $SPOOF -g "Battery" -n "bat_status"  -v $BAT_Replace   -t "string" -u ""  -s "zero" -D "Battery Status"      -T "Battery Status"      $LIFETIME
+  $SEND -S $SPOOF -g "Battery" -n "ups_model"   -v $UPS_Model     -t "string" -u ""  -s "zero" -D "UPS Model"           -T "UPS Model"           $LIFETIME
+  $SEND -S $SPOOF -g "Battery" -n "bat_runtime" -v $BAT_Runtime   -t "string" -u ""  -s "both" -D "Battery Runtime"     -T "Battery Runtime"     $LIFETIME
+  $SEND -S $SPOOF -g "Battery" -n "bat_cap"     -v $BAT_Cap       -t "float"  -u "%" -s "both" -D "Battery Capacity"    -T "Battery Capacity"    $LIFETIME
+  $SEND -S $SPOOF -g "Battery" -n "bat_temp"    -v $BAT_Temp      -t "float"  -u "C" -s "both" -D "Battery Temp"        -T "Battery Temp"        $LIFETIME
+
+  $SEND -S $SPOOF -g "Input_PH1" -n "ups_in_ph1_v"     -v $UPS_IN_V1      -t "float"  -u "V" -s "both" -D "Input Voltage - Phase1"   -T "Input Voltage - PH1"   $LIFETIME
+  $SEND -S $SPOOF -g "Input_PH2" -n "ups_in_ph2_v"     -v $UPS_IN_V2      -t "float"  -u "V" -s "both" -D "Input Voltage - Phase2"   -T "Input Voltage - PH2"   $LIFETIME
+  $SEND -S $SPOOF -g "Input_PH3" -n "ups_in_ph3_v"     -v $UPS_IN_V3      -t "float"  -u "V" -s "both" -D "Input Voltage - Phase3"   -T "Input Voltage - PH3"   $LIFETIME
+
+  $SEND -S $SPOOF -g "Input_PH1" -n "ups_in_ph1_i"     -v $UPS_IN_I1      -t "float"  -u "A" -s "both" -D "Input Current - Phase1"   -T "Input Current - PH1"   $LIFETIME
+  $SEND -S $SPOOF -g "Input_PH2" -n "ups_in_ph2_i"     -v $UPS_IN_I2      -t "float"  -u "A" -s "both" -D "Input Current - Phase2"   -T "Input Current - PH2"   $LIFETIME
+  $SEND -S $SPOOF -g "Input_PH3" -n "ups_in_ph3_i"     -v $UPS_IN_I3      -t "float"  -u "A" -s "both" -D "Input Current - Phase3"   -T "Input Current - PH3"   $LIFETIME
+
+  $SEND -S $SPOOF -g "Output_PH1" -n "ups_out_ph1_v"     -v $UPS_OUT_V1      -t "float"  -u "V" -s "both" -D "Output Voltage - Phase1"   -T "Output Voltage - PH1"   $LIFETIME
+  $SEND -S $SPOOF -g "Output_PH2" -n "ups_out_ph2_v"     -v $UPS_OUT_V2      -t "float"  -u "V" -s "both" -D "Output Voltage - Phase2"   -T "Output Voltage - PH2"   $LIFETIME
+  $SEND -S $SPOOF -g "Output_PH3" -n "ups_out_ph3_v"     -v $UPS_OUT_V3      -t "float"  -u "V" -s "both" -D "Output Voltage - Phase3"   -T "Output Voltage - PH3"   $LIFETIME
+
+  $SEND -S $SPOOF -g "Output_PH1" -n "ups_out_ph1_i"     -v $UPS_OUT_I1      -t "float"  -u "A" -s "both" -D "Output Current - Phase1"   -T "Output Current - PH1"   $LIFETIME
+  $SEND -S $SPOOF -g "Output_PH2" -n "ups_out_ph2_i"     -v $UPS_OUT_I2      -t "float"  -u "A" -s "both" -D "Output Current - Phase2"   -T "Output Current - PH2"   $LIFETIME
+  $SEND -S $SPOOF -g "Output_PH3" -n "ups_out_ph3_i"     -v $UPS_OUT_I3      -t "float"  -u "A" -s "both" -D "Output Current - Phase3"   -T "Output Current - PH3"   $LIFETIME
+
+  $SEND -S $SPOOF -g "Output_PH1" -n "ups_ph1_load"      -v $UPS_OUT_LOAD1   -t "float"  -u "VA" -s "both" -D "Output Power - Phase1"    -T "Output Power - PH1"    $LIFETIME
+  $SEND -S $SPOOF -g "Output_PH2" -n "ups_ph2_load"      -v $UPS_OUT_LOAD2   -t "float"  -u "VA" -s "both" -D "Output Power - Phase2"    -T "Output Power - PH2"    $LIFETIME
+  $SEND -S $SPOOF -g "Output_PH3" -n "ups_ph3_load"      -v $UPS_OUT_LOAD3   -t "float"  -u "VA" -s "both" -D "Output Power - Phase3"    -T "Output Power - PH3"    $LIFETIME
+
+  $SEND -S $SPOOF -g "Output_PH1" -n "ups_ph1_load_p100"   -v $UPS_OUT_LOAD1_P100   -t "float"  -u "%" -s "both" -D "Output Power % - Phase1"    -T "Output Power % - PH1"    $LIFETIME
+  $SEND -S $SPOOF -g "Output_PH2" -n "ups_ph2_load_p100"   -v $UPS_OUT_LOAD2_P100   -t "float"  -u "%" -s "both" -D "Output Power % - Phase2"    -T "Output Power % - PH2"    $LIFETIME
+  $SEND -S $SPOOF -g "Output_PH3" -n "ups_ph3_load_p100"   -v $UPS_OUT_LOAD3_P100   -t "float"  -u "%" -s "both" -D "Output Power % - Phase3"    -T "Output Power % - PH3"    $LIFETIME
+
+
+
+
+#  -n, --name=STRING     Name of the metric
+#  -v, --value=STRING    Value of the metric
+#  -t, --type=STRING     Either string|int8|uint8|int16|uint16|int32|uint32|float|double
+#  -u, --units=STRING    Unit of measure for the value e.g. Kilobytes, Celcius (default=`')
+#  -s, --slope=STRING    Either zero|positive|negative|both  (default=`both')
+#  -x, --tmax=INT        The maximum time in seconds between gmetric calls  (default=`60')
+#  -d, --dmax=INT        The lifetime in seconds of this metric  (default=`0')
+#  -g, --group=STRING    Group(s) of the metric (comma-separated)
+#  -C, --cluster=STRING  Cluster of the metric
+#  -D, --desc=STRING     Description of the metric
+#  -T, --title=STRING    Title of the metric
+#  -S, --spoof=STRING    IP address and name of host/device (colon separated) we are spoofing  (default=`')
+#  -H, --heartbeat       spoof a heartbeat message (use with spoof option)
+

@@ -1,0 +1,57 @@
+#!/bin/bash
+
+CONF="/etc/ganglia_cooling/gmond.conf"
+SEND="/usr/bin/gmetric -c $CONF"
+
+COOLING_DATA_DIR="/export/home/monalisa/issmon/data/cooling"
+LIFETIME="--tmax=900 --dmax=0"
+
+for cool in ${COOLING_DATA_DIR}/*.cooling ; do
+  IP=`basename $cool .cooling`
+  
+  source $cool
+  [[ -z "$Name" ]] && continue 
+
+  name_low="$(echo $Name | tr '[:upper:]' '[:lower:]')"
+
+  SPOOF=$IP":"$name_low
+#  echo $SPOOF
+
+  $SEND -S $SPOOF -H
+  $SEND -S $SPOOF -g "Cooling" -n "Model" -v $Model -t "string" -u ""  -s "zero" -D "Model" -T "Model" $LIFETIME
+
+  $SEND -S $SPOOF -g "Cooling.temp" -n "supply.temp"     -v $Supply_temp      -t "float"  -u "C" -s "both" -D "Supply Temp"            -T "Supply Temp"            $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.temp" -n "return.temp"     -v $Return_temp      -t "float"  -u "C" -s "both" -D "Return Temp"            -T "Return Temp"            $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.temp" -n "rackinlet.temp"  -v $Rack_inlet_temp  -t "float"  -u "C" -s "both" -D "Rack Inlet Temp"        -T "Rack Inlet Temp"        $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.temp" -n "water.in.temp"   -v $in_chilled       -t "float"  -u "C" -s "both" -D "Entering Chilled Water" -T "Chilled Water - IN"     $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.temp" -n "water.out.temp"  -v $out_chilled      -t "float"  -u "C" -s "both" -D "Leaving Chilled Water"  -T "Chilled Water - OUT"    $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.temp" -n "water.coil.temp" -v $coil_chilled     -t "float"  -u "C" -s "both" -D "Coil Chilled Water"     -T "Chilled Water - COIL"   $LIFETIME
+
+  $SEND -S $SPOOF -g "Cooling.misc" -n "fanspeed"    -v $Fan_speed    -t "float"  -u "%"   -s "both" -D "Fan Speed"     -T "Fan Speed"     $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.misc" -n "airflow"     -v $Airflow      -t "float"  -u "CFM" -s "both" -D "Airflow"       -T "Airflow"       $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.misc" -n "cooldemand"  -v $Cool_demand  -t "float"  -u "kW"  -s "both" -D "Cool demand"   -T "Cool demand"   $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.misc" -n "coolout"     -v $Cool_output  -t "float"  -u "kW"  -s "both" -D "Cool output"   -T "Cool output"   $LIFETIME
+
+  $SEND -S $SPOOF -g "Cooling.misc2" -n "airflow2"     -v $Airflow2      -t "float"  -u "CFM" -s "both" -D "Airflow2"       -T "Airflow2"       $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.misc2" -n "cooldemand2"  -v $Cool_demand2  -t "float"  -u "kW"  -s "both" -D "Cool demand2"   -T "Cool demand2"   $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.misc2" -n "coolout2"     -v $Cool_output2  -t "float"  -u "kW"  -s "both" -D "Cool output2"   -T "Cool output2"   $LIFETIME
+
+  $SEND -S $SPOOF -g "Cooling.misc2" -n "unit.energy"  -v $Unit_energy  -t "float"  -u "kWh"  -s "both" -D "Unit energy"   -T "Unit energy"  $LIFETIME
+  $SEND -S $SPOOF -g "Cooling.misc2" -n "unit.power"   -v $Unit_power   -t "float"  -u "W"    -s "both" -D "Unit power"    -T "Unit power"   $LIFETIME
+
+done
+
+#  -n, --name=STRING     Name of the metric
+#  -v, --value=STRING    Value of the metric
+#  -t, --type=STRING     Either string|int8|uint8|int16|uint16|int32|uint32|float|double
+#  -u, --units=STRING    Unit of measure for the value e.g. Kilobytes, Celcius (default=`')
+#  -s, --slope=STRING    Either zero|positive|negative|both  (default=`both')
+#  -x, --tmax=INT        The maximum time in seconds between gmetric calls  (default=`60')
+#  -d, --dmax=INT        The lifetime in seconds of this metric  (default=`0')
+#  -g, --group=STRING    Group(s) of the metric (comma-separated)
+#  -C, --cluster=STRING  Cluster of the metric
+#  -D, --desc=STRING     Description of the metric
+#  -T, --title=STRING    Title of the metric
+#  -S, --spoof=STRING    IP address and name of host/device (colon separated) we are spoofing  (default=`')
+#  -H, --heartbeat       spoof a heartbeat message (use with spoof option)
+
