@@ -2,8 +2,7 @@
 
 PWD_DIR=`dirname $0`
 
-ISSMON_DIR="$HOME/issmon"
-OUTPUT_DIR="$ISSMON_DIR/data/network"
+OUTPUT_DIR="/export/home/monalisa/issmon_data/network"
 
 TABLE="snmptable "
 GET="snmpget "
@@ -16,34 +15,32 @@ OUTPUT="/tmp/snmp_temp_network.txt"
 
 NAME=" .1.3.6.1.2.1.1.5.0"
 
-for switch in `cat $ISSMON_DIR/list_switch`
-do
+for switch in $(cat $ISSMON_DIR/list_switch) ; do
 
-GET_NAME_SWITCH="$GET$ARG3$SNMP_COMMUNITY$switch$NAME | sed 's/^\ //;s/\ /_/g'"
-GET_TABLE_SWITCH="$TABLE$SNMP_COMMUNITY$switch$ARG2"
+  GET_NAME_SWITCH="$GET$ARG3$SNMP_COMMUNITY$switch$NAME | sed 's/^\ //;s/\ /_/g'"
+  GET_TABLE_SWITCH="$TABLE$SNMP_COMMUNITY$switch$ARG2"
 
-#echo 
-#echo $GET_NAME_SWITCH
-#echo $GET_TABLE_SWITCH
+  #echo 
+  #echo $GET_NAME_SWITCH
+  #echo $GET_TABLE_SWITCH
 
-NAME_SWITCH=`eval ${GET_NAME_SWITCH}`
-eval ${GET_TABLE_SWITCH} > $OUTPUT
+  NAME_SWITCH=`eval ${GET_NAME_SWITCH}`
+  eval ${GET_TABLE_SWITCH} > $OUTPUT
 
-#echo "Name : " $NAME_SWITCH
+  #echo "Name : " $NAME_SWITCH
 
-FILE="$OUTPUT_DIR/$NAME_SWITCH.iftbl"
+  FILE="$OUTPUT_DIR/$NAME_SWITCH.iftbl"
 
-##cp $OUTPUT ${FILE}.rawout
+  ##cp $OUTPUT ${FILE}.rawout
 
-echo -e "Descr\t AdminStatus\t OperStatus\t InDiscards\t InErrors\t OutDiscards\t OutErrors"  > ${FILE}
+  echo -e "Descr\t AdminStatus\t OperStatus\t InDiscards\t InErrors\t OutDiscards\t OutErrors"  > ${FILE}
 
-cat $OUTPUT | awk -F" ; " '{ if ( ($3 == "ethernetCsmacd") || ($3 == "gigabitEthernet") ) { print $2,"\t",$7,"\t",$8,"\t",$13,"\t",$14,"\t",$19,"\t",$20; } }' >> ${FILE}
-column -t ${FILE} > tmp && mv tmp -f ${FILE}
-
+  cat $OUTPUT | awk -F" ; " '{ if ( ($3 == "ethernetCsmacd") || ($3 == "gigabitEthernet") ) { print $2,"\t",$7,"\t",$8,"\t",$13,"\t",$14,"\t",$19,"\t",$20; } }' >> ${FILE}
+  column -t ${FILE} > tmp && mv tmp -f ${FILE}
 
 done
 
-# after takinf all data delete temp file
+# after taking all data delete temp file
 rm -rf $OUTPUT
 
 
