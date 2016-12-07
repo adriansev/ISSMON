@@ -3,6 +3,7 @@
 CONF="/etc/ganglia_cooling/gmond.conf"
 SEND="/usr/bin/gmetric -c $CONF"
 
+ISSMON_DIR="/export/home/monalisa/issmon/"
 COOLING_DATA_DIR="/export/home/monalisa/issmon_data/cooling"
 LIFETIME="--tmax=900 --dmax=0"
 

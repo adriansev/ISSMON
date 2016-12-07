@@ -2,6 +2,7 @@
 
 PWD_DIR=`dirname $0`
 
+ISSMON_DIR="/export/home/monalisa/issmon/"
 OUTPUT_DIR="/export/home/monalisa/issmon_data/raid"
 
 TABLE="snmptable "

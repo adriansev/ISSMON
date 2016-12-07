@@ -23,7 +23,7 @@ get_smart_from_file()
 }
 
 
-
+ISSMON_DIR="/export/home/monalisa/issmon/"
 DATADIR="/export/home/monalisa/issmon_data/raid_smart"
 RAWDATADIR=$DATADIR/raw
 
