@@ -3,7 +3,7 @@
 PWD_DIR=`dirname $0`
 
 ISSMON_DIR="/export/home/monalisa/issmon/"
-OUTPUT_DIR="/export/home/monalisa/issmon_data/network/LLDP"
+OUTPUT_DIR="/export/home/monalisa/issmon_data/network/LLDP/"
 mkdir -p ${OUTPUT_DIR}
 
 TABLE="snmptable "
@@ -13,52 +13,83 @@ WALK="snmpwalk "
 SNMP_COMMUNITY=" -c iss-ro -v 2c -Pu "
 ARG2=" -CB -Cf \" ; \" lldpRemTable "
 ARG3=" -Oq -Ov "
-OUTPUT="/tmp/snmp_temp_network.txt"
 
 NAME=" .1.3.6.1.2.1.1.5.0"
 
-for switch in `cat $ISSMON_DIR/list_switch`; do
+while read switch ; do
+  [[ -z "$switch" ]] && continue;
+  IS_VALID=$(ping -nq -l3 -c3 -i0.2 ${switch} | awk -F"," '/transmitted/ {gsub("% packet loss","",$3);gsub(/^[ \t]+|[ \t]+$/, "", $3);print $3}')
+  [[ "${IS_VALID}" -ne "0" ]] && continue;
 
-GET_NAME_SWITCH="$GET$ARG3$SNMP_COMMUNITY$switch$NAME | sed 's/^\ //;s/\ /_/g'"
-GET_TABLE_SWITCH="$TABLE$SNMP_COMMUNITY$switch$ARG2"
+  GET_NAME_SWITCH="$GET$ARG3$SNMP_COMMUNITY$switch$NAME | sed 's/^\ //;s/\ /_/g'"
+  NAME_SWITCH=$(eval ${GET_NAME_SWITCH})
 
-#echo 
-#echo $GET_NAME_SWITCH
-#echo $GET_TABLE_SWITCH
+  [[ -z "$NAME_SWITCH" ]] && echo "EMPTY SWITCH NAME : IP = ${switch}" && continue;
 
-NAME_SWITCH=`eval ${GET_NAME_SWITCH}`
-#echo "Name : " $NAME_SWITCH
+  SWDIR="${OUTPUT_DIR}/${NAME_SWITCH}.lldpdir"
+  mkdir -p ${SWDIR}
 
-SWDIR="${OUTPUT_DIR}/${NAME_SWITCH}.lldpdir"
-mkdir -p ${SWDIR}
+  FILE="${SWDIR}/${NAME_SWITCH}.lldp"
 
-FILE="${SWDIR}/$NAME_SWITCH.lldp"
-##eval ${GET_TABLE_SWITCH} | tail -n +4 > ${FILE}
+  GET_TABLE_SWITCH="$TABLE$SNMP_COMMUNITY$switch$ARG2"
 
-rm -rf ${SWDIR}/*.node
+##  echo $GET_TABLE_SWITCH
 
-eval ${GET_TABLE_SWITCH} | tail -n +4 | awk -F";" -v dir="$SWDIR" '
-{
-gsub(/\ /, "", $2);gsub(/\"/, "", $2);
-gsub(/\ /, "", $4);gsub(/\"/, "", $4);gsub(/\//, "_", $4);
-file=$2"@"$4
+  #echo 
+  #echo "IS_VALID = $IS_VALID"
+  #echo $GET_NAME_SWITCH
+  #echo $GET_TABLE_SWITCH
+  #echo "Switch : " $switch
+  #echo "Name : " $NAME_SWITCH
 
-printf ("RemChassisIdSubtype=\"%s\"\n", $1) >> dir"/"file".node";
-printf ("RemChassisId=\"%s\"\n", $2) >> dir"/"file".node";
-printf ("RemPortIdSubtype=\"%s\"\n", $3) >> dir"/"file".node";
-printf ("RemPortId=%s\n", $4) >> dir"/"file".node";
-printf ("RemPortDesc=\"%s\"\n", $5) >> dir"/"file".node";
-printf ("RemSysName=\"%s\"\n", $6) >> dir"/"file".node";
-printf ("RemSysDesc=\"%s\"\n", $7) >> dir"/"file".node";
-printf ("RemSysCapSupported=%s\n", $8) >> dir"/"file".node";
-printf ("RemSysCapEnabled=%s\n", $9) >> dir"/"file".node";
-printf ("\n") >> dir"/"file".node";
+  TABLE_SWITCH=$(eval ${GET_TABLE_SWITCH} | tail -n +4 )
+  #echo "${TABLE_SWITCH}" > ${FILE}
 
-}' 
+  echo "${TABLE_SWITCH}" | awk -F";" -v dir="$SWDIR" ' {
+    gsub(/\"/, "", $1);
+    gsub(/\"/, "", $2);
+    gsub(/\"/, "", $3);
+    gsub(/\"/, "", $4);
+    gsub(/\"/, "", $5);
+    gsub(/\"/, "", $6);
+    gsub(/\"/, "", $7);
+    gsub(/\"/, "", $8);
+    gsub(/\"/, "", $9);
+    gsub(/^[ \t]+|[ \t]+$/, "", $1)
+    gsub(/^[ \t]+|[ \t]+$/, "", $2)
+    gsub(/^[ \t]+|[ \t]+$/, "", $3)
+    gsub(/^[ \t]+|[ \t]+$/, "", $4)
+    gsub(/^[ \t]+|[ \t]+$/, "", $5)
+    gsub(/^[ \t]+|[ \t]+$/, "", $6)
+    gsub(/^[ \t]+|[ \t]+$/, "", $7)
+    gsub(/^[ \t]+|[ \t]+$/, "", $8)
+    gsub(/^[ \t]+|[ \t]+$/, "", $9)
 
-done
+    gsub(/\//, "_", $2);
+    gsub(/\//, "_", $4);
 
-# after takinf all data delete temp file
-rm -rf $OUTPUT
+    gsub(" ", "_", $2);
+    gsub(" ", "_", $4);
+    gsub(" ", "_", $6);
+
+    gsub(/\r/,"", $7);
+
+    file=dir"/"$2"@"$4".node";
+    rm_cmd="rm -f " file;
+    system(rm_cmd);
+
+    printf ("RemChassisIdSubtype=\"%s\"\n", $1) >> file;
+    printf ("RemChassisId=\"%s\"\n", $2) >> file;
+    printf ("RemPortIdSubtype=\"%s\"\n", $3) >> file;
+    printf ("RemPortId=\"%s\"\n", $4) >> file;
+    printf ("RemPortDesc=\"%s\"\n", $5) >> file;
+    printf ("RemSysName=\"%s\"\n", $6) >> file;
+    printf ("RemSysDesc=\"%s\"\n", $7) >> file;
+    printf ("RemSysCapSupported=%s\n", $8) >> file;
+    printf ("RemSysCapEnabled=%s\n", $9) >> file;
+    }' 
+
+done < $ISSMON_DIR/list_switch
+
 
 
