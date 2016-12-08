@@ -9,8 +9,7 @@
 # 197 - Current Pending Sector Count
 # 198 - Off-line Scan Uncorrectable
 
-get_smart_from_file()
-{
+get_smart_from_file () {
   awk '{
       if ( $1 == 1 )   {print $1, "Raw_Read_Error_Rate", $(NF-4), $(NF-1);}
       if ( $1 == 5 )   {print $1, "Reallocated_Sector_Count", $(NF-4), $(NF-1);}
@@ -22,35 +21,33 @@ get_smart_from_file()
     }' $1
 }
 
-
 ISSMON_DIR="/export/home/monalisa/issmon/"
 DATADIR="/export/home/monalisa/issmon_data/raid_smart"
-RAWDATADIR=$DATADIR/raw
+RAWDATADIR=${DATADIR}/raw
 
 RAID_HOSTS="issaf storage02 storage03 storage04 storage05 storage06 storage07"
 
-REMOTE_SMART_LOC="/raid_info/smart/"
+SMART_DIR="raid_info/smart"
 
 for host in $RAID_HOSTS ; do
   if [ "$host" == "issaf" ] ; then
-    BASE_REMOTE_SMART_LOC="/export/"
+    BASEDIR="/export/"
   else
-    BASE_REMOTE_SMART_LOC="/home/"
+    BASEDIR="/home/"
   fi
 
   mkdir -p $RAWDATADIR/$host
-  rsync -qau --delete $host:$BASE_REMOTE_SMART_LOC/$REMOTE_SMART_LOC $RAWDATADIR/$host/
+  rsync --min-size=10 -qauWz --delete ${host}:${BASEDIR}/${SMART_DIR}/ ${RAWDATADIR}/${host}/
 done
 
+for server_dirs in ${RAWDATADIR}/* ; do
+  server=$(basename ${server_dirs})
+  SHORTDIR="${DATADIR}/short/${server}"
+  mkdir -p ${SHORTDIR}
 
-
-for server in `ls -1 $RAWDATADIR` ; do
-  SHORTDIR="$DATADIR/short/$server.smart"
-  [ -d "$RAWDATADIR/$server" ] && mkdir -p $SHORTDIR || continue
-  cd $SHORTDIR
-  for hdd in `ls -1 $RAWDATADIR/$server/*.smart` ; do
-    get_smart_from_file $hdd | column -t > $SHORTDIR/`basename $hdd`
+  for hdd in ${server_dirs}/* ; do
+    [[ -e ${hdd} ]] || continue
+    get_smart_from_file ${hdd} | column -t > $SHORTDIR/$(basename ${hdd})
   done
 done
-
 
