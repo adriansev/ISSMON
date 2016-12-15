@@ -35,8 +35,7 @@ for raid in `cat $ISSMON_DIR/list_raid` ; do
 
   TYPE=$TYPE1
 
-  if [ "$NAME_RAID" = "storage06" ] 
-  then
+  if [[ ( "$NAME_RAID" == "storage06" ) || ( "$NAME_RAID" == "storage07" ) || ( "$NAME_RAID" == "seau" )]] ; then
     TYPE=$TYPE2
   fi
 
