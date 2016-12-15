@@ -25,7 +25,7 @@ ISSMON_DIR="/export/home/monalisa/issmon/"
 DATADIR="/export/home/monalisa/issmon_data/raid_smart"
 RAWDATADIR=${DATADIR}/raw
 
-RAID_HOSTS="issaf storage02 storage03 storage04 storage05 storage06 storage07"
+RAID_HOSTS="issaf seau storage02 storage03 storage04 storage05 storage06 storage07"
 
 SMART_DIR="raid_info/smart"
 
