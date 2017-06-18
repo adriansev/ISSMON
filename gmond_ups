@@ -9,7 +9,7 @@ CONF="/etc/ganglia_ups/gmond.conf"
 
 SEND="/usr/bin/gmetric -c $CONF"
 
-UPS_DATA_DIR="/export/home/monalisa/issmon_data"
+UPS_DATA_DIR="/home/monalisa/issmon_data"
 
 LIFETIME="--tmax=900 --dmax=0"
 

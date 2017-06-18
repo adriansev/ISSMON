@@ -4,7 +4,7 @@ PWD_DIR=`dirname $0`
 
 PDU="172.20.0.192"
 
-OUTPUT_DIR="/export/home/monalisa/issmon_data"
+OUTPUT_DIR="/home/monalisa/issmon_data"
 
 TEMP_FILE="/tmp/temp_snmp_data.txt"
 

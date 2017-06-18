@@ -3,8 +3,8 @@
 CONF="/etc/ganglia_cooling/gmond.conf"
 SEND="/usr/bin/gmetric -c $CONF"
 
-ISSMON_DIR="/export/home/monalisa/issmon/"
-COOLING_DATA_DIR="/export/home/monalisa/issmon_data/cooling"
+ISSMON_DIR="/home/monalisa/issmon/"
+COOLING_DATA_DIR="/home/monalisa/issmon_data/cooling"
 LIFETIME="--tmax=900 --dmax=0"
 
 for cool in ${COOLING_DATA_DIR}/*.cooling ; do

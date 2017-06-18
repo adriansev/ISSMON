@@ -21,8 +21,8 @@ get_smart_from_file () {
     }' $1
 }
 
-ISSMON_DIR="/export/home/monalisa/issmon/"
-DATADIR="/export/home/monalisa/issmon_data/raid_smart"
+ISSMON_DIR="/home/monalisa/issmon/"
+DATADIR="/home/monalisa/issmon_data/raid_smart"
 RAWDATADIR=${DATADIR}/raw
 
 RAID_HOSTS="issaf seau storage02 storage03 storage04 storage05 storage06 storage07"
@@ -31,7 +31,7 @@ SMART_DIR="raid_info/smart"
 
 for host in $RAID_HOSTS ; do
   if [ "$host" == "issaf" ] ; then
-    BASEDIR="/export/"
+    BASEDIR="/"
   else
     BASEDIR="/home/"
   fi
