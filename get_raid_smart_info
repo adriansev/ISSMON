@@ -22,32 +22,28 @@ get_smart_from_file () {
 }
 
 ISSMON_DIR="/home/monalisa/issmon/"
-DATADIR="/home/monalisa/issmon_data/raid_smart"
-RAWDATADIR=${DATADIR}/raw
+DATADIR="/home/monalisa/issmon_data/raid_info"
+ARCDIR="/home/raid_info"
 
 RAID_HOSTS="issaf seau storage02 storage03 storage04 storage05 storage06 storage07"
 
-SMART_DIR="raid_info/smart"
+for host in ${RAID_HOSTS} ; do
+  SYNCDIR="${ARCDIR}"
+  [[ "$host" == "issaf" ]] && SYNCDIR="/export${ARCDIR}"
 
-for host in $RAID_HOSTS ; do
-  if [ "$host" == "issaf" ] ; then
-    BASEDIR="/"
-  else
-    BASEDIR="/home/"
-  fi
-
-  mkdir -p $RAWDATADIR/$host
-  rsync --min-size=10 -qauWz --delete ${host}:${BASEDIR}/${SMART_DIR}/ ${RAWDATADIR}/${host}/
+  mkdir -p ${DATADIR}/${host}/
+  rsync --min-size=10 -qauWz --delete ${host}:${SYNCDIR}/ ${DATADIR}/${host}/
 done
 
-for server_dirs in ${RAWDATADIR}/* ; do
+for server_dirs in ${DATADIR}/* ; do
   server=$(basename ${server_dirs})
-  SHORTDIR="${DATADIR}/short/${server}"
+  SHORTDIR="${DATADIR}/../raid_smart/${server}"
   mkdir -p ${SHORTDIR}
 
-  for hdd in ${server_dirs}/* ; do
+  for hdd in ${server_dirs}/smart/* ; do
     [[ -e ${hdd} ]] || continue
-    get_smart_from_file ${hdd} | column -t > $SHORTDIR/$(basename ${hdd})
+    get_smart_from_file ${hdd} | column -t > ${SHORTDIR}/$(basename ${hdd})
   done
+
 done
 
