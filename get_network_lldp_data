@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PWD_DIR=`dirname $0`
+PWD_DIR=$(dirname ${0})
 
 ISSMON_DIR="/home/monalisa/issmon/"
 OUTPUT_DIR="/home/monalisa/issmon_data/network/LLDP/"
@@ -17,9 +17,8 @@ ARG3=" -Oq -Ov "
 NAME=" .1.3.6.1.2.1.1.5.0"
 
 while read switch ; do
-  [[ -z "$switch" ]] && continue;
-  IS_VALID=$(ping -nq -l3 -c3 -i0.2 ${switch} | awk -F"," '/transmitted/ {gsub("% packet loss","",$3);gsub(/^[ \t]+|[ \t]+$/, "", $3);print $3}')
-  [[ "${IS_VALID}" -ne "0" ]] && continue;
+  [[ -z "${switch}" ]] && continue;
+  fping -q -c2 ${switch} &> /dev/null ||  continue;
 
   GET_NAME_SWITCH="$GET$ARG3$SNMP_COMMUNITY$switch$NAME | sed 's/^\ //;s/\ /_/g'"
   NAME_SWITCH=$(eval ${GET_NAME_SWITCH})
@@ -27,14 +26,12 @@ while read switch ; do
   [[ -z "$NAME_SWITCH" ]] && echo "EMPTY SWITCH NAME : IP = ${switch}" && continue;
 
   SWDIR="${OUTPUT_DIR}/${NAME_SWITCH}.lldpdir"
-  mkdir -p ${SWDIR}
+  [[ -e "${SWDIR}" ]] && rm -rf "${SWDIR}"
+  mkdir -p "${SWDIR}"
 
-  FILE="${SWDIR}/${NAME_SWITCH}.lldp"
-
-  GET_TABLE_SWITCH="$TABLE$SNMP_COMMUNITY$switch$ARG2"
+  GET_TABLE_SWITCH="${TABLE}${SNMP_COMMUNITY}${switch}${ARG2}"
 
 ##  echo $GET_TABLE_SWITCH
-
   #echo 
   #echo "IS_VALID = $IS_VALID"
   #echo $GET_NAME_SWITCH
@@ -42,10 +39,12 @@ while read switch ; do
   #echo "Switch : " $switch
   #echo "Name : " $NAME_SWITCH
 
-  TABLE_SWITCH=$(eval ${GET_TABLE_SWITCH} | tail -n +4 )
-  #echo "${TABLE_SWITCH}" > ${FILE}
+  # TABLE_SWITCH=$(eval ${GET_TABLE_SWITCH} | tail -n +4 )
+  TABLE_SWITCH="$(eval ${GET_TABLE_SWITCH})"
 
-  echo "${TABLE_SWITCH}" | awk -F";" -v dir="$SWDIR" ' {
+  FILE="${SWDIR}/${NAME_SWITCH}.lldp"
+  echo "${TABLE_SWITCH}" | sed 's/\r//g' | column -t -s ";" > "${FILE}.raw"
+  echo "${TABLE_SWITCH}" | sed 's/\r//g' | tail -n +4 | awk -F";" -v dir="${SWDIR}" ' {
     gsub(/\"/, "", $1);
     gsub(/\"/, "", $2);
     gsub(/\"/, "", $3);
@@ -74,7 +73,7 @@ while read switch ; do
 
     gsub(/\r/,"", $7);
 
-    file=dir"/"$2"@"$4".node";
+    file=dir"/"$4"@"$2".node";
     rm_cmd="rm -f " file;
     system(rm_cmd);
 

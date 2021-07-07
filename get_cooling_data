@@ -97,7 +97,7 @@ in_chilled_185="${POWERNET}.1.1.13.3.2.2.2.24.0"
 out_chilled_185="${POWERNET}.1.1.13.3.2.2.2.26.0"
 
 
-for cool in $(cat $ISSMON_DIR/list_cooling) ; do
+for cool in $(grep -v '^#' $(dirname ${0})/list_cooling) ; do
   FILE="$OUTPUT_DIR/$cool.cooling"
 
   if [[ "$cool" == "172.20.0.185" ]] ;then

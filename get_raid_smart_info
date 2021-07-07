@@ -25,7 +25,7 @@ ISSMON_DIR="/home/monalisa/issmon/"
 DATADIR="/home/monalisa/issmon_data/raid_info"
 ARCDIR="/home/raid_info"
 
-RAID_HOSTS="issaf seau storage02 storage03 storage04 storage05 storage06 storage07"
+RAID_HOSTS="seau storage02 storage03 storage04 storage05 storage06 storage07"
 
 for host in ${RAID_HOSTS} ; do
   SYNCDIR="${ARCDIR}"

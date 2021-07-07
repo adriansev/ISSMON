@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PWD_DIR=`dirname $0`
+PWD_DIR=$(dirname ${0})
 
 UPS="172.20.0.191"
 
@@ -31,7 +31,7 @@ upsHighPrecBatteryCapacity="${POWERNET}.1.1.1.2.3.1.0"
      upsAdvBatteryTemperature="${POWERNET}.1.1.1.2.2.2.0"
 upsHighPrecBatteryTemperature="${POWERNET}.1.1.1.2.3.2.0"
 
-# Time remaining on battery in time ticks…. /100 /60=minutes - upsAdvBatteryRunTimeRemaining.0
+# Time remaining on battery in time ticks. /100 /60=minutes - upsAdvBatteryRunTimeRemaining.0
 upsAdvBatteryRunTimeRemaining="${POWERNET}.1.1.1.2.2.3.0"
 
 upsAdvBatteryReplaceIndicator="${POWERNET}.1.1.1.2.2.4.0"
