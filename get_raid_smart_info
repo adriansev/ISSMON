@@ -1,49 +1,14 @@
 #!/bin/bash
 
-# SMART ATTRIB
-# 1   - Raw Read Error Rate
-# 5   - Reallocated Sector Count
-# 7   - Seek Error Rate
-# 194 - Temperature
-# 196 - Reallocation Event Count
-# 197 - Current Pending Sector Count
-# 198 - Off-line Scan Uncorrectable
-
-get_smart_from_file () {
-  awk '{
-      if ( $1 == 1 )   {print $1, "Raw_Read_Error_Rate", $(NF-4), $(NF-1);}
-      if ( $1 == 5 )   {print $1, "Reallocated_Sector_Count", $(NF-4), $(NF-1);}
-      if ( $1 == 7 )   {print $1, "Seek_Error_Rate", $(NF-4), $(NF-1);}
-      if ( $1 == 194 ) {print $1, "Temperature", $(NF-4), $(NF-1);}
-      if ( $1 == 196 ) {print $1, "Reallocation_Event_Count", $(NF-4), $(NF-1);}
-      if ( $1 == 197 ) {print $1, "Current_Pending_Sector_Count", $(NF-4), $(NF-1);}
-      if ( $1 == 198 ) {print $1, "Off-line_Scan_Uncorrectable", $(NF-4), $(NF-1);}
-    }' $1
-}
-
 ISSMON_DIR="/home/monalisa/issmon/"
 DATADIR="/home/monalisa/issmon_data/raid_info"
 ARCDIR="/home/raid_info"
 
-RAID_HOSTS="seau storage02 storage03 storage04 storage05 storage06 storage07"
+RAID_HOSTS="eos_fst15"
 
 for host in ${RAID_HOSTS} ; do
   SYNCDIR="${ARCDIR}"
-  [[ "$host" == "issaf" ]] && SYNCDIR="/export${ARCDIR}"
-
   mkdir -p ${DATADIR}/${host}/
   rsync --min-size=10 -qauWz --delete ${host}:${SYNCDIR}/ ${DATADIR}/${host}/
-done
-
-for server_dirs in ${DATADIR}/* ; do
-  server=$(basename ${server_dirs})
-  SHORTDIR="${DATADIR}/../raid_smart/${server}"
-  mkdir -p ${SHORTDIR}
-
-  for hdd in ${server_dirs}/smart/* ; do
-    [[ -e ${hdd} ]] || continue
-    get_smart_from_file ${hdd} | column -t > ${SHORTDIR}/$(basename ${hdd})
-  done
-
 done
 

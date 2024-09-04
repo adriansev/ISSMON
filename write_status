@@ -24,7 +24,7 @@ cp ${FILE_TEMPLATE} ${FILE}
 source ${OUTPUT_DIR}/UPS.txt
 source ${OUTPUT_DIR}/PDU.txt
 
-load_total=$(echo "$UPS_OUT_LOAD1 + $UPS_OUT_LOAD2 + $UPS_OUT_LOAD3" | bc -l)
+load_total=$(echo "${UPS_OUT_LOAD1} + ${UPS_OUT_LOAD2} + ${UPS_OUT_LOAD3}" | bc -l)
 
 ##   FUNCTIONS
 pprint4 () { local val=$(printf "%04.1f\n" $1); echo "${val}"; } 
@@ -103,37 +103,34 @@ COLOR_24_3=$(br_load_temp_color $BR_24_3_Load)
 ###############################################################################################################
 convert -size 840x1010 xc:"rgba(0,0,0,0)" -type truecolormatte PNG32:${TMP1}
 convert -transparent white -alpha transparent \
--fill ${COLOR_1_1}  -pointsize 16 -gravity west -annotate +0+0   "BR_01_1_I = $BR_1_1_Power kW   --> $(pprint4 $BR_1_1_Load) %" \
--fill ${COLOR_1_2}  -pointsize 16 -gravity west -annotate +0+19  "BR_01_2_I = $BR_1_2_Power kW   --> $(pprint4 $BR_1_2_Load) %" \
--fill ${COLOR_1_3}  -pointsize 16 -gravity west -annotate +0+38  "BR_01_3_I = $BR_1_3_Power kW   --> $(pprint4 $BR_1_3_Load) %" \
--fill ${COLOR_2_1}  -pointsize 16 -gravity west -annotate +0+57  "BR_02_1_I = $BR_2_1_Power kW   --> $(pprint4 $BR_2_1_Load) %" \
--fill ${COLOR_2_2}  -pointsize 16 -gravity west -annotate +0+76  "BR_02_2_I = $BR_2_2_Power kW   --> $(pprint4 $BR_2_2_Load) %" \
--fill ${COLOR_2_3}  -pointsize 16 -gravity west -annotate +0+95  "BR_02_3_I = $BR_2_3_Power kW   --> $(pprint4 $BR_2_3_Load) %" \
--fill ${COLOR_18_1} -pointsize 16 -gravity west -annotate +0+114 "BR_18_1_I = $BR_18_1_Power kW   --> $(pprint4 $BR_18_1_Load) %" \
--fill ${COLOR_18_2} -pointsize 16 -gravity west -annotate +0+133 "BR_18_2_I = $BR_18_2_Power kW   --> $(pprint4 $BR_18_2_Load) %" \
--fill ${COLOR_18_3} -pointsize 16 -gravity west -annotate +0+152 "BR_18_3_I = $BR_18_3_Power kW   --> $(pprint4 $BR_18_3_Load) %" \
--fill ${COLOR_19_1} -pointsize 16 -gravity west -annotate +0+171 "BR_19_1_I = $BR_19_1_Power kW   --> $(pprint4 $BR_19_1_Load) %" \
--fill ${COLOR_19_2} -pointsize 16 -gravity west -annotate +0+190 "BR_19_2_I = $BR_19_2_Power kW   --> $(pprint4 $BR_19_2_Load) %" \
--fill ${COLOR_19_3} -pointsize 16 -gravity west -annotate +0+209 "BR_19_3_I = $BR_19_3_Power kW   --> $(pprint4 $BR_19_3_Load) %" \
--fill ${COLOR_20_1} -pointsize 16 -gravity west -annotate +0+228 "BR_20_1_I = $BR_20_1_Power kW   --> $(pprint4 $BR_20_1_Load) %" \
--fill ${COLOR_20_2} -pointsize 16 -gravity west -annotate +0+247 "BR_20_2_I = $BR_20_2_Power kW   --> $(pprint4 $BR_20_2_Load) %" \
--fill ${COLOR_20_3} -pointsize 16 -gravity west -annotate +0+266 "BR_20_3_I = $BR_20_3_Power kW   --> $(pprint4 $BR_20_3_Load) %" \
--fill ${COLOR_21_1} -pointsize 16 -gravity west -annotate +0+285 "BR_21_1_I = $BR_21_1_Power kW   --> $(pprint4 $BR_21_1_Load) %" \
--fill ${COLOR_21_2} -pointsize 16 -gravity west -annotate +0+304 "BR_21_2_I = $BR_21_2_Power kW   --> $(pprint4 $BR_21_2_Load) %" \
--fill ${COLOR_21_3} -pointsize 16 -gravity west -annotate +0+323 "BR_21_3_I = $BR_21_3_Power kW   --> $(pprint4 $BR_21_3_Load) %" \
--fill ${COLOR_22_1} -pointsize 16 -gravity west -annotate +0+342 "BR_22_1_I = $BR_22_1_Power kW   --> $(pprint4 $BR_22_1_Load) %" \
--fill ${COLOR_22_2} -pointsize 16 -gravity west -annotate +0+361 "BR_22_2_I = $BR_22_2_Power kW   --> $(pprint4 $BR_22_2_Load) %" \
--fill ${COLOR_22_3} -pointsize 16 -gravity west -annotate +0+380 "BR_22_3_I = $BR_22_3_Power kW   --> $(pprint4 $BR_22_3_Load) %" \
--fill ${COLOR_23_1} -pointsize 16 -gravity west -annotate +0+399 "BR_23_1_I = $BR_23_1_Power kW   --> $(pprint4 $BR_23_1_Load) %" \
--fill ${COLOR_23_2} -pointsize 16 -gravity west -annotate +0+418 "BR_23_2_I = $BR_23_2_Power kW   --> $(pprint4 $BR_23_2_Load) %" \
--fill ${COLOR_23_3} -pointsize 16 -gravity west -annotate +0+437 "BR_23_3_I = $BR_23_3_Power kW   --> $(pprint4 $BR_23_3_Load) %" \
--fill ${COLOR_24_1} -pointsize 16 -gravity west -annotate +0+456 "BR_24_1_I = $BR_24_1_Power kW   --> $(pprint4 $BR_24_1_Load) %" \
--fill ${COLOR_24_2} -pointsize 16 -gravity west -annotate +0+475 "BR_24_2_I = $BR_24_2_Power kW   --> $(pprint4 $BR_24_2_Load) %" \
--fill ${COLOR_24_3} -pointsize 16 -gravity west -annotate +0+494 "BR_24_3_I = $BR_24_3_Power kW   --> $(pprint4 $BR_24_3_Load) %" \
+-fill ${COLOR_1_1}  -pointsize 16 -gravity west -annotate +0+0   "BR_01_1_I = $BR_1_1_Power kW | $(pprint4 $BR_1_1_Load) %" \
+-fill ${COLOR_1_2}  -pointsize 16 -gravity west -annotate +0+19  "BR_01_2_I = $BR_1_2_Power kW | $(pprint4 $BR_1_2_Load) %" \
+-fill ${COLOR_1_3}  -pointsize 16 -gravity west -annotate +0+38  "BR_01_3_I = $BR_1_3_Power kW | $(pprint4 $BR_1_3_Load) %" \
+-fill ${COLOR_2_1}  -pointsize 16 -gravity west -annotate +0+57  "BR_02_1_I = $BR_2_1_Power kW | $(pprint4 $BR_2_1_Load) %" \
+-fill ${COLOR_2_2}  -pointsize 16 -gravity west -annotate +0+76  "BR_02_2_I = $BR_2_2_Power kW | $(pprint4 $BR_2_2_Load) %" \
+-fill ${COLOR_2_3}  -pointsize 16 -gravity west -annotate +0+95  "BR_02_3_I = $BR_2_3_Power kW | $(pprint4 $BR_2_3_Load) %" \
+-fill ${COLOR_18_1} -pointsize 16 -gravity west -annotate +0+114 "BR_18_1_I = $BR_18_1_Power kW | $(pprint4 $BR_18_1_Load) %" \
+-fill ${COLOR_18_2} -pointsize 16 -gravity west -annotate +0+133 "BR_18_2_I = $BR_18_2_Power kW | $(pprint4 $BR_18_2_Load) %" \
+-fill ${COLOR_18_3} -pointsize 16 -gravity west -annotate +0+152 "BR_18_3_I = $BR_18_3_Power kW | $(pprint4 $BR_18_3_Load) %" \
+-fill ${COLOR_19_1} -pointsize 16 -gravity west -annotate +0+171 "BR_19_1_I = $BR_19_1_Power kW | $(pprint4 $BR_19_1_Load) %" \
+-fill ${COLOR_19_2} -pointsize 16 -gravity west -annotate +0+190 "BR_19_2_I = $BR_19_2_Power kW | $(pprint4 $BR_19_2_Load) %" \
+-fill ${COLOR_19_3} -pointsize 16 -gravity west -annotate +0+209 "BR_19_3_I = $BR_19_3_Power kW | $(pprint4 $BR_19_3_Load) %" \
+-fill ${COLOR_20_1} -pointsize 16 -gravity west -annotate +0+228 "BR_20_1_I = $BR_20_1_Power kW | $(pprint4 $BR_20_1_Load) %" \
+-fill ${COLOR_20_2} -pointsize 16 -gravity west -annotate +0+247 "BR_20_2_I = $BR_20_2_Power kW | $(pprint4 $BR_20_2_Load) %" \
+-fill ${COLOR_20_3} -pointsize 16 -gravity west -annotate +0+266 "BR_20_3_I = $BR_20_3_Power kW | $(pprint4 $BR_20_3_Load) %" \
+-fill ${COLOR_21_1} -pointsize 16 -gravity west -annotate +0+285 "BR_21_1_I = $BR_21_1_Power kW | $(pprint4 $BR_21_1_Load) %" \
+-fill ${COLOR_21_2} -pointsize 16 -gravity west -annotate +0+304 "BR_21_2_I = $BR_21_2_Power kW | $(pprint4 $BR_21_2_Load) %" \
+-fill ${COLOR_21_3} -pointsize 16 -gravity west -annotate +0+323 "BR_21_3_I = $BR_21_3_Power kW | $(pprint4 $BR_21_3_Load) %" \
+-fill ${COLOR_22_1} -pointsize 16 -gravity west -annotate +0+342 "BR_22_1_I = $BR_22_1_Power kW | $(pprint4 $BR_22_1_Load) %" \
+-fill ${COLOR_22_2} -pointsize 16 -gravity west -annotate +0+361 "BR_22_2_I = $BR_22_2_Power kW | $(pprint4 $BR_22_2_Load) %" \
+-fill ${COLOR_22_3} -pointsize 16 -gravity west -annotate +0+380 "BR_22_3_I = $BR_22_3_Power kW | $(pprint4 $BR_22_3_Load) %" \
+-fill ${COLOR_23_1} -pointsize 16 -gravity west -annotate +0+399 "BR_23_1_I = $BR_23_1_Power kW | $(pprint4 $BR_23_1_Load) %" \
+-fill ${COLOR_23_2} -pointsize 16 -gravity west -annotate +0+418 "BR_23_2_I = $BR_23_2_Power kW | $(pprint4 $BR_23_2_Load) %" \
+-fill ${COLOR_23_3} -pointsize 16 -gravity west -annotate +0+437 "BR_23_3_I = $BR_23_3_Power kW | $(pprint4 $BR_23_3_Load) %" \
+-fill ${COLOR_24_1} -pointsize 16 -gravity west -annotate +0+456 "BR_24_1_I = $BR_24_1_Power kW | $(pprint4 $BR_24_1_Load) %" \
+-fill ${COLOR_24_2} -pointsize 16 -gravity west -annotate +0+475 "BR_24_2_I = $BR_24_2_Power kW | $(pprint4 $BR_24_2_Load) %" \
+-fill ${COLOR_24_3} -pointsize 16 -gravity west -annotate +0+494 "BR_24_3_I = $BR_24_3_Power kW | $(pprint4 $BR_24_3_Load) %" \
 -trim ${TMP1} ${TMP1}
-
-
-
 
 ############################################################
 #### TEMPERATURES
@@ -208,31 +205,33 @@ convert \
 -font Liberation-Sans-Bold -fill ${BAT_COLOR} -pointsize 18    -annotate +1103+553 $BAT_STATUS \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 18          -annotate +1160+574 $BAT_Temp \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 18          -annotate +1108+596 $BAT_Runtime \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+45+240   "20_2 =  $BR_20_2_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+128+240  "21_2 =  $BR_21_2_Load %" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+196+240 'CLIMA 4' \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+257+240  "20_3 =  $BR_20_3_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+340+240  "21_3 =  $BR_21_3_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+470+240  "19_1 =  $BR_19_1_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+556+240  "18_1 =  $BR_18_1_Load %" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+621+240 'CLIMA 3' \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+680+240  "19_3 =  $BR_19_3_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+766+240  "18_3 =  $BR_18_3_Load %" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+836+240 'CLIMA 6' \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+895+240  "19_2 =  $BR_19_2_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+980+240  "18_2 =  $BR_18_2_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+45+790   "23_3 =  $BR_23_3_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+128+790  "24_3 =  $BR_24_3_Load %" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+196+790 'CLIMA 1' \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+257+790  "24_2 =  $BR_24_2_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+340+790  "23_2 =  $BR_23_2_Load %" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+414+790 'CLIMA 5' \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+470+790  "24_1 =  $BR_24_1_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+470+1010 "20_1 =  $BR_20_1_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+556+1010 "21_1 =  $BR_21_1_Load %" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+621+790 'CLIMA 2' \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+680+790  "23_1 =  $BR_23_1_Load %" \
--font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+766+790  "22_2 =  $BR_22_2_Load %" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+45+280   "20_2 = ${BR_20_2_Load}% ${BR_20_2_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+128+280  "21_2 = ${BR_21_2_Load}% ${BR_21_2_Power}kW" \
+-font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+196+280 'CLIMA 4' \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+257+280  "20_3 = ${BR_20_3_Load}% ${BR_20_3_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+340+280  "21_3 = ${BR_21_3_Load}% ${BR_21_3_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+470+280  "19_1 = ${BR_19_1_Load}% ${BR_19_1_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+556+280  "18_1 = ${BR_18_1_Load}% ${BR_18_1_Power}kW" \
+-font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+621+280 'CLIMA 3' \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+680+280  "19_3 = ${BR_19_3_Load}% ${BR_19_3_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+766+280  "18_3 = ${BR_18_3_Load}% ${BR_18_3_Power}kW" \
+-font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+836+280 'CLIMA 6' \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+895+280  "19_2 = ${BR_19_2_Load}% ${BR_19_2_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+980+280  "18_2 = ${BR_18_2_Load}% ${BR_18_2_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+45+820   "23_3 = ${BR_23_3_Load}% ${BR_23_3_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+128+820  "24_3 = ${BR_24_3_Load}% ${BR_24_3_Power}kW" \
+-font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+196+820 'CLIMA 1' \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+257+820  "24_2 = ${BR_24_2_Load}% ${BR_24_2_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+340+820  "23_2 = ${BR_23_2_Load}% ${BR_23_2_Power}kW" \
+-font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+414+820 'CLIMA 5' \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+470+820  "24_1 = ${BR_24_1_Load}% ${BR_24_1_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+543+820  "22_1 = ${BR_22_1_Load}% ${BR_22_1_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+563+820  "22_3 = ${BR_22_3_Load}% ${BR_22_3_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+470+1020 "20_1 = ${BR_20_1_Load}% ${BR_20_1_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+563+1020 "21_1 = ${BR_21_1_Load}% ${BR_21_1_Power}kW" \
+-font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+621+820 'CLIMA 2' \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+680+820  "23_1 = ${BR_23_1_Load}% ${BR_23_1_Power}kW" \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+766+820  "22_2 = ${BR_22_2_Load}% ${BR_22_2_Power}kW" \
 -font Liberation-Sans -fill ${COLOR_S4} -pointsize 16 -annotate +148+25 $sup4 \
 -font Liberation-Sans -fill ${COLOR_I4} -pointsize 16 -annotate +148+45 $inlet4 \
 -font Liberation-Sans -fill ${COLOR_R4} -pointsize 16 -annotate +172+549 $ret4 \

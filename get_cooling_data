@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PWD_DIR=`dirname $0`
+PWD_DIR=$(dirname ${0})
 
 ISSMON_DIR="/home/monalisa/issmon/"
 OUTPUT_DIR="/home/monalisa/issmon_data/cooling"
@@ -98,7 +98,7 @@ out_chilled_185="${POWERNET}.1.1.13.3.2.2.2.26.0"
 
 
 for cool in $(grep -v '^#' $(dirname ${0})/list_cooling) ; do
-  FILE="$OUTPUT_DIR/$cool.cooling"
+  FILE="$OUTPUT_DIR/${cool}.cooling"
 
   if [[ "$cool" == "172.20.0.185" ]] ;then
     SNMPOUT=$($GET $ARG3 $SNMP_COMMUNITY $cool \
@@ -112,7 +112,7 @@ for cool in $(grep -v '^#' $(dirname ${0})/list_cooling) ; do
     $airflow_185 \
     $fan_speed_185 \
     $in_chilled_185 \
-    $out_chilled_185)
+    $out_chilled_185 2>/dev/null )
 
     echo $SNMPOUT | awk  '
     {
@@ -154,7 +154,7 @@ for cool in $(grep -v '^#' $(dirname ${0})/list_cooling) ; do
     $airflow2 \
     $in_chilled \
     $out_chilled \
-    $coil_chilled)
+    $coil_chilled 2>/dev/null )
 
     echo $SNMPOUT | awk  '
     {
@@ -180,6 +180,4 @@ for cool in $(grep -v '^#' $(dirname ${0})/list_cooling) ; do
   fi
 
 done
-
-
 

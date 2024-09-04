@@ -15,7 +15,7 @@ for cool in ${COOLING_DATA_DIR}/*.cooling ; do
 
   name_low="$(echo $Name | tr '[:upper:]' '[:lower:]')"
 
-  SPOOF=$IP":"$name_low
+  SPOOF=${IP}":"$name_low
 #  echo $SPOOF
 
   $SEND -S $SPOOF -H

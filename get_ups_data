@@ -106,7 +106,7 @@ $upsPhaseOutputLoad2 \
 $upsPhaseOutputLoad3 \
 $upsPhaseOutputPercentLoad1 \
 $upsPhaseOutputPercentLoad2 \
-$upsPhaseOutputPercentLoad3)
+$upsPhaseOutputPercentLoad3 2>/dev/null)
 
 ##echo $SNMPOUT
 #: <<'COMMENT'

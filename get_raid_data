@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PWD_DIR=`dirname $0`
+PWD_DIR=$(dirname ${0})
 
 ISSMON_DIR="/home/monalisa/issmon/"
 OUTPUT_DIR="/home/monalisa/issmon_data/raid"
@@ -27,30 +27,26 @@ EVENT=" eventInfoTable"
 TYPE1=" -IS ARECA-SNMP-MIB-SATA:: "
 TYPE2=" -IS ARECA-SNMP-MIB-SAS:: "
 
-for raid in `cat $ISSMON_DIR/list_raid` ; do
+for raid in $(< ${ISSMON_DIR}/list_raid) ; do
   FILE=$raid
 
-  NAME_RAID=`$GET $ARG3 $SNMP_COMMUNITY $raid $NAME | sed 's/^\ //;s/\ /_/g'`
+  NAME_RAID=$($GET $ARG3 $SNMP_COMMUNITY $raid $NAME 2> /dev/null | sed 's/^\ //;s/\ /_/g')
   [ -z "$NAME_RAID" ] && continue
 
-  TYPE=$TYPE1
+  TYPE=$TYPE2
 
-  if [[ ( "$NAME_RAID" == "storage06" ) || ( "$NAME_RAID" == "storage07" ) || ( "$NAME_RAID" == "seau" )]] ; then
-    TYPE=$TYPE2
-  fi
-
-  CARD=`$GET $ARG3 $SNMP_COMMUNITY $raid $TYPE $MODEL | sed 's/\"//g'`
+  CARD=$($GET $ARG3 $SNMP_COMMUNITY $raid $TYPE $MODEL 2> /dev/null | sed 's/\"//g')
 
   echo $NAME_RAID >  $OUTPUT_DIR/${FILE}.raid
   echo $CARD      >> $OUTPUT_DIR/${FILE}.raid
 
-  TBL_RAID="$TABLE $ARG_TABLE $SNMP_COMMUNITY $raid $TYPE $RAID"
+  TBL_RAID="$TABLE $ARG_TABLE $SNMP_COMMUNITY $raid $TYPE $RAID 2> /dev/null"
   eval $TBL_RAID >> $OUTPUT_DIR/${FILE}.raid
 
-  TBL_VOL="$TABLE $ARG_TABLE $SNMP_COMMUNITY $raid $TYPE $VOL"
+  TBL_VOL="$TABLE $ARG_TABLE $SNMP_COMMUNITY $raid $TYPE $VOL 2> /dev/null"
   eval $TBL_VOL > $OUTPUT_DIR/${FILE}.vol
 
-  TBL_EV="$TABLE $ARG_TABLE $SNMP_COMMUNITY $raid $TYPE $EVENT"
+  TBL_EV="$TABLE $ARG_TABLE $SNMP_COMMUNITY $raid $TYPE $EVENT 2> /dev/null"
   eval $TBL_EV > $OUTPUT_DIR/${FILE}.events
 done
 

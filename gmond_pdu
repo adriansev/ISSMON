@@ -45,6 +45,33 @@ SPOOF="$IP:PDU"
   $SEND -S $SPOOF -g "BR2" -n "br2_ph3_i"    -v $BR_2_3_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH3" -T "Amperage - PH3" $LIFETIME
   $SEND -S $SPOOF -g "BR2" -n "br2_ph3_load" -v $BR_2_3_Load  -t "float"  -u "%"  -s "both" -D "Load - PH3"     -T "Load - PH3"     $LIFETIME
   $SEND -S $SPOOF -g "BR2" -n "br2_ph3_pow"  -v $BR_2_3_Power -t "float"  -u "kW" -s "both" -D "Power - PH3"    -T "Power - PH3"    $LIFETIME
+
+###################################################################################
+  $SEND -S $SPOOF -g "BR18" -n "br18_ph1_i"    -v $BR_18_1_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH1" -T "Amperage - PH1" $LIFETIME
+  $SEND -S $SPOOF -g "BR18" -n "br18_ph1_load" -v $BR_18_1_Load  -t "float"  -u "%"  -s "both" -D "Load - PH1"     -T "Load - PH1"     $LIFETIME
+  $SEND -S $SPOOF -g "BR18" -n "br18_ph1_pow"  -v $BR_18_1_Power -t "float"  -u "kW" -s "both" -D "Power - PH1"    -T "Power - PH1"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR18" -n "br18_ph2_i"    -v $BR_18_2_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH2" -T "Amperage - PH2" $LIFETIME
+  $SEND -S $SPOOF -g "BR18" -n "br18_ph2_load" -v $BR_18_2_Load  -t "float"  -u "%"  -s "both" -D "Load - PH2"     -T "Load - PH2"     $LIFETIME
+  $SEND -S $SPOOF -g "BR18" -n "br18_ph2_pow"  -v $BR_18_2_Power -t "float"  -u "kW" -s "both" -D "Power - PH2"    -T "Power - PH2"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR18" -n "br18_ph3_i"    -v $BR_18_3_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH3" -T "Amperage - PH3" $LIFETIME
+  $SEND -S $SPOOF -g "BR18" -n "br18_ph3_load" -v $BR_18_3_Load  -t "float"  -u "%"  -s "both" -D "Load - PH3"     -T "Load - PH3"     $LIFETIME
+  $SEND -S $SPOOF -g "BR18" -n "br18_ph3_pow"  -v $BR_18_3_Power -t "float"  -u "kW" -s "both" -D "Power - PH3"    -T "Power - PH3"    $LIFETIME
+
+###################################################################################
+  $SEND -S $SPOOF -g "BR19" -n "br19_ph1_i"    -v $BR_19_1_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH1" -T "Amperage - PH1" $LIFETIME
+  $SEND -S $SPOOF -g "BR19" -n "br19_ph1_load" -v $BR_19_1_Load  -t "float"  -u "%"  -s "both" -D "Load - PH1"     -T "Load - PH1"     $LIFETIME
+  $SEND -S $SPOOF -g "BR19" -n "br19_ph1_pow"  -v $BR_19_1_Power -t "float"  -u "kW" -s "both" -D "Power - PH1"    -T "Power - PH1"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR19" -n "br19_ph2_i"    -v $BR_19_2_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH2" -T "Amperage - PH2" $LIFETIME
+  $SEND -S $SPOOF -g "BR19" -n "br19_ph2_load" -v $BR_19_2_Load  -t "float"  -u "%"  -s "both" -D "Load - PH2"     -T "Load - PH2"     $LIFETIME
+  $SEND -S $SPOOF -g "BR19" -n "br19_ph2_pow"  -v $BR_19_2_Power -t "float"  -u "kW" -s "both" -D "Power - PH2"    -T "Power - PH2"    $LIFETIME
+
+  $SEND -S $SPOOF -g "BR19" -n "br19_ph3_i"    -v $BR_19_3_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH3" -T "Amperage - PH3" $LIFETIME
+  $SEND -S $SPOOF -g "BR19" -n "br19_ph3_load" -v $BR_19_3_Load  -t "float"  -u "%"  -s "both" -D "Load - PH3"     -T "Load - PH3"     $LIFETIME
+  $SEND -S $SPOOF -g "BR19" -n "br19_ph3_pow"  -v $BR_19_3_Power -t "float"  -u "kW" -s "both" -D "Power - PH3"    -T "Power - PH3"    $LIFETIME
+
 ###################################################################################
   $SEND -S $SPOOF -g "BR20" -n "br20_ph1_i"    -v $BR_20_1_I     -t "float"  -u "A"  -s "both" -D "Amperage - PH1" -T "Amperage - PH1" $LIFETIME
   $SEND -S $SPOOF -g "BR20" -n "br20_ph1_load" -v $BR_20_1_Load  -t "float"  -u "%"  -s "both" -D "Load - PH1"     -T "Load - PH1"     $LIFETIME
