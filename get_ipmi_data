@@ -1,0 +1,175 @@
+#!/usr/bin/env python3
+
+from datetime import datetime
+import sys
+import os
+import json
+import subprocess
+import shlex
+import re
+from pathlib import Path
+import errno
+import fcntl
+
+#from rich.pretty import pprint
+
+ignore_comments_re = re.compile('^\\s*(#|;|//)+', re.MULTILINE)  # identifiy a range of comments
+emptyline_re = re.compile('^\\s*$', re.MULTILINE)  # whitespace line
+host_name_re = re.compile('----------------\n\w+\.ipmi\n----------------', re.MULTILINE)
+cputemp_re = re.compile('CPU\d? Temp')
+psu_status_re = re.compile('PS\d? Status')
+
+# READ PASSWORD FILE
+PASS_FILE = os.path.realpath(os.path.expanduser(os.path.expandvars("~/ipmipass")))
+PASS = None
+try:
+    with open(PASS_FILE, encoding="ascii", errors="replace") as rel_file:
+        for line in rel_file:
+            PASS = line
+            break
+except Exception:
+    pass
+if PASS is None:
+    print('Password could not be read!!!')
+    sys.exit(1)
+
+
+# READ HOST LIST
+def file2list(input_file: str) -> list:
+    """Parse a file and return a list of elements"""
+    if not input_file or not os.path.isfile(input_file): return []
+    file_list = []
+    with open(input_file, encoding="ascii", errors="replace") as filecontent:
+        for line in filecontent:
+            if not line or ignore_comments_re.search(line) or emptyline_re.match(line): continue
+            file_list.extend(line.strip().split())
+    return file_list
+
+IPMI_LIST = os.path.realpath(os.path.expanduser(os.path.expandvars("~/issmon/list_ipmi")))
+IPMI_HOST_LIST = file2list(IPMI_LIST)
+
+## IPMI_HOST_LIST = IPMI_HOST_LIST[:2] # select only first 2 hosts for testing purposes
+HOSTLIST_ARG = ','.join(IPMI_HOST_LIST)
+OUTPUT_DIR = os.path.realpath(os.path.expanduser(os.path.expandvars("~/issmon_data/ipmi")))
+
+# taken from https://gist.github.com/jeremyephron/3dbf7c4c778ce38e63cea7c9ab1fd99d
+def lock_script() -> bool:
+    """
+    Locks a file pertaining to this script so that it cannot be run simultaneously.
+    Since the lock is automatically released when this script ends, there is no need for an unlock function for this use case.
+    Returns: True if the lock was acquired, False otherwise.
+    """
+    global lockfile  # file must remain open until program quits
+    lockfile = open(f'/tmp/{Path(__file__).name}.lock', 'w')
+
+    try:
+        # Try to grab an exclusive lock on the file, raise error otherwise
+        fcntl.lockf(lockfile, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError as e:
+        if e.errno == errno.EACCES or e.errno == errno.EAGAIN:
+            return False
+        raise
+    else:
+        return True
+
+if not lock_script(): sys.exit()
+
+NOW = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+##print(HOSTLIST_ARG)
+##pprint(IPMI_HOST_LIST)
+
+# -B, --buffer-output        Buffer hostranged output.
+# -E, --eliminate            Eliminate undetected nodes.
+
+GEN_ARGS=' --eliminate --buffer-output --quiet-cache --sdr-cache-recreate --ignore-unrecognized-events --ignore-not-available-sensors --bridge-sensors --shared-sensors --interpret-oem-data --output-sensor-thresholds --output-sensor-state --comma-separated-output --no-header-output'
+AUTH_ARGS=f'-u ADMIN -p {PASS}'
+
+CMD = f'ipmimonitoring {AUTH_ARGS} {GEN_ARGS} -h {HOSTLIST_ARG}'
+
+proc_rez = subprocess.run(shlex.split(CMD), capture_output = True, timeout = 5, text = True)
+
+if int(proc_rez.returncode) != 0:
+    print(f'{proc_rez.stderr}\nCommand exited with {proc_rez.returncode}')
+    sys.exit(1)
+
+raw_sensor_data = host_name_re.split(str(proc_rez.stdout))
+raw_sensor_data[:] = [x for x in raw_sensor_data if x]
+if not raw_sensor_data:
+    print('no output')
+    sys.exit(1)
+host_names = host_name_re.findall(str(proc_rez.stdout))
+
+HOST_DATA = {}
+
+for host,data in zip(host_names,raw_sensor_data):
+    hostname_nice = host.replace('----------------','').replace('\n','').strip()
+    data_nice = data.strip()
+
+    # NR = Non-Recoverable, C = Critical, NC = Non-Critical
+    # ID,Name,Type,State,Reading,Units,Lower NR,Lower C,Lower NC,Upper NC,Upper C,Upper NR,Event
+    SENSOR_LIST = {}
+    for sensor in data_nice.split('\n'):
+        s_fields = sensor.strip().split(',')
+        if not s_fields or len(s_fields) < 13: continue
+
+        SENSOR_PROPS = {}
+        ID = s_fields[0].strip()
+        NAME = s_fields[1].strip()
+
+        SENSOR_PROPS['type'] = s_fields[2].strip()
+        SENSOR_PROPS['state'] = s_fields[3].strip()
+        SENSOR_PROPS['reading'] = s_fields[4].strip()
+        SENSOR_PROPS['units'] = s_fields[5].strip()
+        SENSOR_PROPS['lower_nr'] = s_fields[6].strip()
+        SENSOR_PROPS['lower_c'] = s_fields[7].strip()
+        SENSOR_PROPS['lower_nc'] = s_fields[8].strip()
+        SENSOR_PROPS['upper_nc'] = s_fields[9].strip()
+        SENSOR_PROPS['upper_c'] = s_fields[10].strip()
+        SENSOR_PROPS['upper_nr'] = s_fields[11].strip()
+        SENSOR_PROPS['event'] = s_fields[12].replace("'","").strip()
+        SENSOR_LIST[NAME] = SENSOR_PROPS
+
+    HOST_DATA[hostname_nice] = SENSOR_LIST
+    hostname_short = hostname_nice.replace('.ipmi','')
+    host_ipmi_dir = f'{OUTPUT_DIR}/{hostname_short}'
+    Path(host_ipmi_dir).mkdir(parents = True, exist_ok = True)
+
+    file_full  = f'{host_ipmi_dir}/{hostname_short}.full'
+    file_basic = f'{host_ipmi_dir}/{hostname_short}.basic'
+    file_sh    = f'{host_ipmi_dir}/{hostname_short}.sh'
+    timestamp  = f'{host_ipmi_dir}/{NOW}.timestamp'
+
+    with open(timestamp, 'w', encoding = "ascii", errors = "replace") as f: f.write('')
+
+    with open(file_full, 'w', encoding = "ascii", errors = "replace") as f:
+        json_str = json.dumps(SENSOR_LIST, indent = 4)
+        f.write(json_str)
+
+    # we have different names: single socket "CPU Temp", dual-socket we have "CPU{1,2} Temp"
+    short_dict = {}
+    cpu_avg = float(0.0)
+    nr_cpus = int(0)
+    for sensor in SENSOR_LIST.keys():
+        if cputemp_re.match(sensor):
+            nr_cpus += 1
+            cpu_avg += float(SENSOR_LIST[sensor]['reading'])
+        if 'System Temp' in sensor:
+            short_dict[sensor] = SENSOR_LIST[sensor]['reading']
+        if psu_status_re.match(sensor):
+            short_dict[sensor] = SENSOR_LIST[sensor]['event']
+
+    if nr_cpus > 0:
+        short_dict['CPU Temp'] = str(cpu_avg/nr_cpus)
+
+    with open(file_basic, 'w', encoding = "ascii", errors = "replace") as f:
+        json_str = json.dumps(short_dict, indent = 4)
+        f.write(json_str)
+
+    with open(file_sh, 'w', encoding = "ascii", errors = "replace") as f:
+        content = ''
+        for sensor in short_dict.keys():
+            sensor_name_nice = sensor.lower().replace(' ', '_')
+            content = f'{content}{sensor_name_nice} = "{short_dict[sensor]}"\n'
+        f.write(content)
+
