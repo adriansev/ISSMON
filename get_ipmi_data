@@ -135,6 +135,7 @@ table.add_column("Host", no_wrap = True)
 table.add_column("CPU", no_wrap = True)
 table.add_column("System", no_wrap = True)
 table.add_column("Peripheral", no_wrap = True)
+table.add_column("AOC_NIC", no_wrap = True)
 
 HOST_INFO_SORTED = dict(sorted(HOST_INFO.items()))
 for h in HOST_INFO_SORTED:
@@ -177,7 +178,11 @@ for h in HOST_INFO_SORTED:
     temp_cpu = host_dict["CPU Temp"]["reading"]
     temp_sys = host_dict["System Temp"]["reading"] if "System Temp" in host_dict else "NO_SYS_TEMP"
     temp_perif = host_dict["Peripheral Temp"]["reading"] if "Peripheral Temp" in host_dict else "NO_PERIPH_TEMP"
-    table.add_row(f'{hostname_nice}',f'{temp_cpu}', f'{temp_sys}', f'{temp_perif}')
+
+    aoc_nic_list = [x for x in host_dict.keys() if x.startswith("AOC_NIC")]
+    temp_nic = host_dict[aoc_nic_list[0]]["reading"] if aoc_nic_list else "NO_NIC_TEMP"
+
+    table.add_row(f'{hostname_nice}',f'{temp_cpu}', f'{temp_sys}', f'{temp_perif}', f'{temp_nic}')
 
     with open(file_basic, 'w', encoding = "ascii", errors = "replace") as f:
         json_str = json.dumps(short_dict, indent = 4)
