@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+#exec 300<$0
+#flock -n 300 || exit 1
+
+#MYDIR="$(basename $(readlink -f ${BASH_SOURCE}))"
+#pushd "${MYDIR}" &> /dev/null
+
+pushd /home/monalisa/issmon &> /dev/null || { echo "Could not pushd"; exit 1; }
+
+#/home/monalisa/issmon/get_ups_data &>/dev/null &
+#/home/monalisa/issmon/get_PDUtable &>/dev/null &
+#/home/monalisa/issmon/get_cooling_data &>/dev/null &
+
+/home/monalisa/issmon/get_ups_data &
+/home/monalisa/issmon/get_PDUtable &
+/home/monalisa/issmon/get_cooling_data &
+
+wait
+
+/home/monalisa/issmon/write_status
+
+popd &>/dev/null
+

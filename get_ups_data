@@ -1,5 +1,8 @@
 #!/bin/bash
 
+exec 210<$0
+flock -n 210 || exit 1
+
 PWD_DIR=$(dirname ${0})
 
 UPS="172.20.0.191"
@@ -81,9 +84,9 @@ upsPhaseOutputMinPercentLoad2="${POWERNET}.1.1.1.9.3.3.1.11.1.1.2"
 upsPhaseOutputMinPercentLoad3="${POWERNET}.1.1.1.9.3.3.1.11.1.1.3"
 
 
-SNMPOUT=$($GET $ARG3 $SNMP_COMMUNITY $UPS \
-$NAME \
-$upsBasicIdentModel \
+SNMPOUT=$(${GET} ${ARG3} ${SNMP_COMMUNITY} ${UPS} \
+${NAME} \
+${upsBasicIdentModel} \
 $upsAdvBatteryRunTimeRemaining \
 $upsAdvBatteryReplaceIndicator \
 $upsHighPrecBatteryCapacity \
@@ -110,8 +113,8 @@ $upsPhaseOutputPercentLoad3 2>/dev/null)
 
 ##echo $SNMPOUT
 #: <<'COMMENT'
- 
-  echo $SNMPOUT | awk  '
+
+  echo ${SNMPOUT} | awk  '
   BEGIN { model=""; u = 0;}
   {
   for ( i = 1; i <= NF; i++)
@@ -145,7 +148,7 @@ $upsPhaseOutputPercentLoad3 2>/dev/null)
   printf ("UPS_OUT_LOAD1_P100=%.1f\n", $24);
   printf ("UPS_OUT_LOAD2_P100=%.1f\n", $25);
   printf ("UPS_OUT_LOAD3_P100=%.1f\n", $26);
-  }' > $FILE
+  }' | tee "${FILE}"
 
 #COMMENT
 

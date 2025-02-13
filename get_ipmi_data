@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from datetime import datetime
+import glob
 import sys
 import os
 import json
@@ -11,11 +12,13 @@ from pathlib import Path
 import errno
 import fcntl
 
-#from rich.pretty import pprint
+from rich.pretty import pprint
+from rich.console import Console
+from rich.table import Table
 
 ignore_comments_re = re.compile('^\\s*(#|;|//)+', re.MULTILINE)  # identifiy a range of comments
 emptyline_re = re.compile('^\\s*$', re.MULTILINE)  # whitespace line
-host_name_re = re.compile('----------------\n\w+\.ipmi\n----------------', re.MULTILINE)
+host_name_re = re.compile('----------------\n\w+\.dev\n----------------', re.MULTILINE)
 cputemp_re = re.compile('CPU\d? Temp')
 psu_status_re = re.compile('PS\d? Status')
 
@@ -52,6 +55,27 @@ IPMI_HOST_LIST = file2list(IPMI_LIST)
 HOSTLIST_ARG = ','.join(IPMI_HOST_LIST)
 OUTPUT_DIR = os.path.realpath(os.path.expanduser(os.path.expandvars("~/issmon_data/ipmi")))
 
+# convert sensor line to dict
+def sensor_line2dict(sensor_line:str) -> dict:
+    if not sensor_line: return {}
+    s_fields = sensor_line.strip().split(',')
+    if not s_fields or len(s_fields) < 13: return {}
+    SENSOR_PROPS = {}
+    ID = s_fields[0].strip()
+    NAME = s_fields[1].strip()
+    SENSOR_PROPS['type'] = s_fields[2].strip()
+    SENSOR_PROPS['state'] = s_fields[3].strip()
+    SENSOR_PROPS['reading'] = s_fields[4].strip()
+    SENSOR_PROPS['units'] = s_fields[5].strip()
+    SENSOR_PROPS['lower_nr'] = s_fields[6].strip()
+    SENSOR_PROPS['lower_c'] = s_fields[7].strip()
+    SENSOR_PROPS['lower_nc'] = s_fields[8].strip()
+    SENSOR_PROPS['upper_nc'] = s_fields[9].strip()
+    SENSOR_PROPS['upper_c'] = s_fields[10].strip()
+    SENSOR_PROPS['upper_nr'] = s_fields[11].strip()
+    SENSOR_PROPS['event'] = s_fields[12].replace("'","").strip()
+    return {NAME: SENSOR_PROPS }
+
 # taken from https://gist.github.com/jeremyephron/3dbf7c4c778ce38e63cea7c9ab1fd99d
 def lock_script() -> bool:
     """
@@ -82,85 +106,78 @@ NOW = datetime.now().strftime("%Y%m%d_%H%M%S")
 # -B, --buffer-output        Buffer hostranged output.
 # -E, --eliminate            Eliminate undetected nodes.
 
-GEN_ARGS=' --eliminate --buffer-output --quiet-cache --sdr-cache-recreate --ignore-unrecognized-events --ignore-not-available-sensors --bridge-sensors --shared-sensors --interpret-oem-data --output-sensor-thresholds --output-sensor-state --comma-separated-output --no-header-output'
-AUTH_ARGS=f'-u ADMIN -p {PASS}'
+GEN_ARGS=' -E --buffer-output --quiet-cache --sdr-cache-recreate --ignore-unrecognized-events --ignore-not-available-sensors --bridge-sensors --shared-sensors --interpret-oem-data --output-sensor-thresholds --output-sensor-state --comma-separated-output --no-header-output '
+AUTH_ARGS=f' -u ADMIN -p {PASS} '
 
 CMD = f'ipmimonitoring {AUTH_ARGS} {GEN_ARGS} -h {HOSTLIST_ARG}'
 
-proc_rez = subprocess.run(shlex.split(CMD), capture_output = True, timeout = 5, text = True)
+proc_rez = subprocess.run(shlex.split(CMD), capture_output = True, timeout = 10, text = True)
 
 if int(proc_rez.returncode) != 0:
     print(f'{proc_rez.stderr}\nCommand exited with {proc_rez.returncode}')
     sys.exit(1)
 
-raw_sensor_data = host_name_re.split(str(proc_rez.stdout))
-raw_sensor_data[:] = [x for x in raw_sensor_data if x]
-if not raw_sensor_data:
-    print('no output')
-    sys.exit(1)
-host_names = host_name_re.findall(str(proc_rez.stdout))
+item_array = proc_rez.stdout.split('----------------')
+item_array[:] = [x.strip() for x in item_array if x]
 
-HOST_DATA = {}
+HOST_INFO = {}
+for i in item_array:
+    if '.dev' in i :
+        HOSTNAME = i
+        HOST_INFO[HOSTNAME] = {}
+        continue
+    for s in i.split('\n'):
+        sensor_dict = sensor_line2dict(s)
+        HOST_INFO[HOSTNAME].update(sensor_dict)
 
-for host,data in zip(host_names,raw_sensor_data):
-    hostname_nice = host.replace('----------------','').replace('\n','').strip()
-    data_nice = data.strip()
+table = Table(title = f'Temperatures {NOW}', box = None, pad_edge = False)
+table.add_column("Host", no_wrap = True)
+table.add_column("CPU", no_wrap = True)
+table.add_column("System", no_wrap = True)
+table.add_column("Peripheral", no_wrap = True)
 
-    # NR = Non-Recoverable, C = Critical, NC = Non-Critical
-    # ID,Name,Type,State,Reading,Units,Lower NR,Lower C,Lower NC,Upper NC,Upper C,Upper NR,Event
-    SENSOR_LIST = {}
-    for sensor in data_nice.split('\n'):
-        s_fields = sensor.strip().split(',')
-        if not s_fields or len(s_fields) < 13: continue
+HOST_INFO_SORTED = dict(sorted(HOST_INFO.items()))
+for h in HOST_INFO_SORTED:
+    hostname_nice = h.replace('.dev', '')
+    host_dict = HOST_INFO_SORTED[h]
 
-        SENSOR_PROPS = {}
-        ID = s_fields[0].strip()
-        NAME = s_fields[1].strip()
-
-        SENSOR_PROPS['type'] = s_fields[2].strip()
-        SENSOR_PROPS['state'] = s_fields[3].strip()
-        SENSOR_PROPS['reading'] = s_fields[4].strip()
-        SENSOR_PROPS['units'] = s_fields[5].strip()
-        SENSOR_PROPS['lower_nr'] = s_fields[6].strip()
-        SENSOR_PROPS['lower_c'] = s_fields[7].strip()
-        SENSOR_PROPS['lower_nc'] = s_fields[8].strip()
-        SENSOR_PROPS['upper_nc'] = s_fields[9].strip()
-        SENSOR_PROPS['upper_c'] = s_fields[10].strip()
-        SENSOR_PROPS['upper_nr'] = s_fields[11].strip()
-        SENSOR_PROPS['event'] = s_fields[12].replace("'","").strip()
-        SENSOR_LIST[NAME] = SENSOR_PROPS
-
-    HOST_DATA[hostname_nice] = SENSOR_LIST
-    hostname_short = hostname_nice.replace('.ipmi','')
-    host_ipmi_dir = f'{OUTPUT_DIR}/{hostname_short}'
+    host_ipmi_dir = f'{OUTPUT_DIR}/{hostname_nice}'
     Path(host_ipmi_dir).mkdir(parents = True, exist_ok = True)
 
-    file_full  = f'{host_ipmi_dir}/{hostname_short}.full'
-    file_basic = f'{host_ipmi_dir}/{hostname_short}.basic'
-    file_sh    = f'{host_ipmi_dir}/{hostname_short}.sh'
+    file_full  = f'{host_ipmi_dir}/{hostname_nice}_full.txt'
+    file_basic = f'{host_ipmi_dir}/{hostname_nice}_basic.txt'
+    file_sh    = f'{host_ipmi_dir}/{hostname_nice}_sh.txt'
     timestamp  = f'{host_ipmi_dir}/{NOW}.timestamp'
 
+    for ts_file in glob.iglob(os.path.join(host_ipmi_dir, '*.timestamp')): os.remove(ts_file)
     with open(timestamp, 'w', encoding = "ascii", errors = "replace") as f: f.write('')
 
     with open(file_full, 'w', encoding = "ascii", errors = "replace") as f:
-        json_str = json.dumps(SENSOR_LIST, indent = 4)
+        json_str = json.dumps(host_dict, indent = 4)
         f.write(json_str)
 
     # we have different names: single socket "CPU Temp", dual-socket we have "CPU{1,2} Temp"
     short_dict = {}
     cpu_avg = float(0.0)
     nr_cpus = int(0)
-    for sensor in SENSOR_LIST.keys():
+    for sensor in host_dict.keys():
         if cputemp_re.match(sensor):
             nr_cpus += 1
-            cpu_avg += float(SENSOR_LIST[sensor]['reading'])
+            cpu_avg += float(host_dict[sensor]['reading'])
         if 'System Temp' in sensor:
-            short_dict[sensor] = SENSOR_LIST[sensor]['reading']
+            short_dict[sensor] = host_dict[sensor]['reading']
         if psu_status_re.match(sensor):
-            short_dict[sensor] = SENSOR_LIST[sensor]['event']
+            short_dict[sensor] = host_dict[sensor]['event']
 
     if nr_cpus > 0:
-        short_dict['CPU Temp'] = str(cpu_avg/nr_cpus)
+        avg_temp = float(cpu_avg/nr_cpus)
+        short_dict['CPU Temp'] = f'{avg_temp:.1f}'
+        host_dict['CPU Temp'] = {'reading': f'{avg_temp:.1f}'}
+
+    temp_cpu = host_dict["CPU Temp"]["reading"]
+    temp_sys = host_dict["System Temp"]["reading"] if "System Temp" in host_dict else "NO_SYS_TEMP"
+    temp_perif = host_dict["Peripheral Temp"]["reading"] if "Peripheral Temp" in host_dict else "NO_PERIPH_TEMP"
+    table.add_row(f'{hostname_nice}',f'{temp_cpu}', f'{temp_sys}', f'{temp_perif}')
 
     with open(file_basic, 'w', encoding = "ascii", errors = "replace") as f:
         json_str = json.dumps(short_dict, indent = 4)
@@ -170,6 +187,10 @@ for host,data in zip(host_names,raw_sensor_data):
         content = ''
         for sensor in short_dict.keys():
             sensor_name_nice = sensor.lower().replace(' ', '_')
-            content = f'{content}{sensor_name_nice} = "{short_dict[sensor]}"\n'
+            content = f'{content}{sensor_name_nice}="{short_dict[sensor]}"\n'
         f.write(content)
+
+with open(f'{OUTPUT_DIR}/ipmi_stats.txt', 'w', encoding = "ascii", errors = "replace") as f:
+    console = Console(file = f)
+    console.print(table)
 

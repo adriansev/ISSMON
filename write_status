@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 exec 200<$0
 flock -n 200 || exit 1
@@ -19,7 +19,7 @@ FILE_FINAL="${OUTPUT_DIR}/ISS-DC.png"
 
 TMP1="${ISSMON_DIR}/tmp1.png"
 
-cp ${FILE_TEMPLATE} ${FILE}
+##cp ${FILE_TEMPLATE} ${FILE}
 
 source ${OUTPUT_DIR}/UPS.txt
 source ${OUTPUT_DIR}/PDU.txt
@@ -30,107 +30,79 @@ load_total=$(echo "${UPS_OUT_LOAD1} + ${UPS_OUT_LOAD2} + ${UPS_OUT_LOAD3}" | bc 
 pprint4 () { local val=$(printf "%04.1f\n" $1); echo "${val}"; } 
 
 br_load_temp_color () {
+[[ -z "${1}" ]] && return;
 local value=""
 (( $(echo "$1 < 50"  | bc -l) )) && { value="black -font Liberation-Sans";     }
 (( $(echo "$1 >= 50" | bc -l) )) && { value="SeaGreen -font Liberation-Sans";  }
 (( $(echo "$1 >= 70" | bc -l) )) && { value="orange -font Liberation-Sans-Bold";    }
 (( $(echo "$1 >= 80" | bc -l) )) && { value="OrangeRed -font Liberation-Sans-Bold"; }
 (( $(echo "$1 >= 90" | bc -l) )) && { value="red1 -font Liberation-Sans-Bold";      }
-echo $value
+echo ${value}
 }
 
 temp_color_sup () {
+[[ -z "${1}" ]] && return;
 local value=""
-(( $(echo "$1 < 21"  | bc -l) )) && { value="navy -font Liberation-Sans";     }
-(( $(echo "$1 >= 21" | bc -l) )) && { value="SeaGreen -font Liberation-Sans";  }
-(( $(echo "$1 >= 23" | bc -l) )) && { value="orange -font Liberation-Sans-Bold";    }
+(( $(echo "$1 < 22"  | bc -l) )) && { value="navy -font Liberation-Sans";     }
+(( $(echo "$1 >= 22" | bc -l) )) && { value="SeaGreen -font Liberation-Sans";  }
+(( $(echo "$1 >= 24" | bc -l) )) && { value="orange -font Liberation-Sans-Bold";    }
 (( $(echo "$1 >= 25" | bc -l) )) && { value="OrangeRed -font Liberation-Sans-Bold"; }
-(( $(echo "$1 >= 27" | bc -l) )) && { value="red1 -font Liberation-Sans-Bold";      }
-echo $value
+(( $(echo "$1 >= 26" | bc -l) )) && { value="red1 -font Liberation-Sans-Bold";      }
+echo ${value}
 }
 
 temp_color_inlet () {
+[[ -z "${1}" ]] && return;
 local value=""
-(( $(echo "$1 < 23"  | bc -l) )) && { value="navy -font Liberation-Sans";     }
-(( $(echo "$1 >= 23" | bc -l) )) && { value="SeaGreen -font Liberation-Sans";  }
+(( $(echo "$1 < 24"  | bc -l) )) && { value="navy -font Liberation-Sans";     }
+(( $(echo "$1 >= 24" | bc -l) )) && { value="SeaGreen -font Liberation-Sans";  }
 (( $(echo "$1 >= 25" | bc -l) )) && { value="orange -font Liberation-Sans-Bold";    }
 (( $(echo "$1 >= 27" | bc -l) )) && { value="OrangeRed -font Liberation-Sans-Bold"; }
 (( $(echo "$1 >= 29" | bc -l) )) && { value="red1 -font Liberation-Sans-Bold";      }
-echo $value
+echo ${value}
 }
 
 temp_color_ret () {
+[[ -z "${1}" ]] && return;
 local value=""
-(( $(echo "$1 < 27"  | bc -l) )) && { value="navy -font Liberation-Sans";     }
-(( $(echo "$1 >= 27" | bc -l) )) && { value="SeaGreen -font Liberation-Sans";  }
+(( $(echo "$1 < 30"  | bc -l) )) && { value="navy -font Liberation-Sans";     }
+(( $(echo "$1 >= 30" | bc -l) )) && { value="SeaGreen -font Liberation-Sans";  }
 (( $(echo "$1 >= 32" | bc -l) )) && { value="orange -font Liberation-Sans-Bold";    }
-(( $(echo "$1 >= 35" | bc -l) )) && { value="OrangeRed -font Liberation-Sans-Bold"; }
-(( $(echo "$1 >= 38" | bc -l) )) && { value="red1 -font Liberation-Sans-Bold";      }
-echo $value
+(( $(echo "$1 >= 34" | bc -l) )) && { value="OrangeRed -font Liberation-Sans-Bold"; }
+(( $(echo "$1 >= 36" | bc -l) )) && { value="red1 -font Liberation-Sans-Bold";      }
+echo ${value}
 }
 
 COLOR="blue"
 
 ###############################################################################################################
-COLOR_1_1=$(br_load_temp_color $BR_1_1_Load)
-COLOR_1_2=$(br_load_temp_color $BR_1_2_Load)
-COLOR_1_3=$(br_load_temp_color $BR_1_3_Load)
-COLOR_2_1=$(br_load_temp_color $BR_2_1_Load)
-COLOR_2_2=$(br_load_temp_color $BR_2_2_Load)
-COLOR_2_3=$(br_load_temp_color $BR_2_3_Load)
-COLOR_18_1=$(br_load_temp_color $BR_18_1_Load)
-COLOR_18_2=$(br_load_temp_color $BR_18_2_Load)
-COLOR_18_3=$(br_load_temp_color $BR_18_3_Load)
-COLOR_19_1=$(br_load_temp_color $BR_19_1_Load)
-COLOR_19_2=$(br_load_temp_color $BR_19_2_Load)
-COLOR_19_3=$(br_load_temp_color $BR_19_3_Load)
-COLOR_20_1=$(br_load_temp_color $BR_20_1_Load)
-COLOR_20_2=$(br_load_temp_color $BR_20_2_Load)
-COLOR_20_3=$(br_load_temp_color $BR_20_3_Load)
-COLOR_21_1=$(br_load_temp_color $BR_21_1_Load)
-COLOR_21_2=$(br_load_temp_color $BR_21_2_Load)
-COLOR_21_3=$(br_load_temp_color $BR_21_3_Load)
-COLOR_22_1=$(br_load_temp_color $BR_22_1_Load)
-COLOR_22_2=$(br_load_temp_color $BR_22_2_Load)
-COLOR_22_3=$(br_load_temp_color $BR_22_3_Load)
-COLOR_23_1=$(br_load_temp_color $BR_23_1_Load)
-COLOR_23_2=$(br_load_temp_color $BR_23_2_Load)
-COLOR_23_3=$(br_load_temp_color $BR_23_3_Load)
-COLOR_24_1=$(br_load_temp_color $BR_24_1_Load)
-COLOR_24_2=$(br_load_temp_color $BR_24_2_Load)
-COLOR_24_3=$(br_load_temp_color $BR_24_3_Load)
-
-###############################################################################################################
-convert -size 840x1010 xc:"rgba(0,0,0,0)" -type truecolormatte PNG32:${TMP1}
-convert -transparent white -alpha transparent \
--fill ${COLOR_1_1}  -pointsize 16 -gravity west -annotate +0+0   "BR_01_1_I = $BR_1_1_Power kW | $(pprint4 $BR_1_1_Load) %" \
--fill ${COLOR_1_2}  -pointsize 16 -gravity west -annotate +0+19  "BR_01_2_I = $BR_1_2_Power kW | $(pprint4 $BR_1_2_Load) %" \
--fill ${COLOR_1_3}  -pointsize 16 -gravity west -annotate +0+38  "BR_01_3_I = $BR_1_3_Power kW | $(pprint4 $BR_1_3_Load) %" \
--fill ${COLOR_2_1}  -pointsize 16 -gravity west -annotate +0+57  "BR_02_1_I = $BR_2_1_Power kW | $(pprint4 $BR_2_1_Load) %" \
--fill ${COLOR_2_2}  -pointsize 16 -gravity west -annotate +0+76  "BR_02_2_I = $BR_2_2_Power kW | $(pprint4 $BR_2_2_Load) %" \
--fill ${COLOR_2_3}  -pointsize 16 -gravity west -annotate +0+95  "BR_02_3_I = $BR_2_3_Power kW | $(pprint4 $BR_2_3_Load) %" \
--fill ${COLOR_18_1} -pointsize 16 -gravity west -annotate +0+114 "BR_18_1_I = $BR_18_1_Power kW | $(pprint4 $BR_18_1_Load) %" \
--fill ${COLOR_18_2} -pointsize 16 -gravity west -annotate +0+133 "BR_18_2_I = $BR_18_2_Power kW | $(pprint4 $BR_18_2_Load) %" \
--fill ${COLOR_18_3} -pointsize 16 -gravity west -annotate +0+152 "BR_18_3_I = $BR_18_3_Power kW | $(pprint4 $BR_18_3_Load) %" \
--fill ${COLOR_19_1} -pointsize 16 -gravity west -annotate +0+171 "BR_19_1_I = $BR_19_1_Power kW | $(pprint4 $BR_19_1_Load) %" \
--fill ${COLOR_19_2} -pointsize 16 -gravity west -annotate +0+190 "BR_19_2_I = $BR_19_2_Power kW | $(pprint4 $BR_19_2_Load) %" \
--fill ${COLOR_19_3} -pointsize 16 -gravity west -annotate +0+209 "BR_19_3_I = $BR_19_3_Power kW | $(pprint4 $BR_19_3_Load) %" \
--fill ${COLOR_20_1} -pointsize 16 -gravity west -annotate +0+228 "BR_20_1_I = $BR_20_1_Power kW | $(pprint4 $BR_20_1_Load) %" \
--fill ${COLOR_20_2} -pointsize 16 -gravity west -annotate +0+247 "BR_20_2_I = $BR_20_2_Power kW | $(pprint4 $BR_20_2_Load) %" \
--fill ${COLOR_20_3} -pointsize 16 -gravity west -annotate +0+266 "BR_20_3_I = $BR_20_3_Power kW | $(pprint4 $BR_20_3_Load) %" \
--fill ${COLOR_21_1} -pointsize 16 -gravity west -annotate +0+285 "BR_21_1_I = $BR_21_1_Power kW | $(pprint4 $BR_21_1_Load) %" \
--fill ${COLOR_21_2} -pointsize 16 -gravity west -annotate +0+304 "BR_21_2_I = $BR_21_2_Power kW | $(pprint4 $BR_21_2_Load) %" \
--fill ${COLOR_21_3} -pointsize 16 -gravity west -annotate +0+323 "BR_21_3_I = $BR_21_3_Power kW | $(pprint4 $BR_21_3_Load) %" \
--fill ${COLOR_22_1} -pointsize 16 -gravity west -annotate +0+342 "BR_22_1_I = $BR_22_1_Power kW | $(pprint4 $BR_22_1_Load) %" \
--fill ${COLOR_22_2} -pointsize 16 -gravity west -annotate +0+361 "BR_22_2_I = $BR_22_2_Power kW | $(pprint4 $BR_22_2_Load) %" \
--fill ${COLOR_22_3} -pointsize 16 -gravity west -annotate +0+380 "BR_22_3_I = $BR_22_3_Power kW | $(pprint4 $BR_22_3_Load) %" \
--fill ${COLOR_23_1} -pointsize 16 -gravity west -annotate +0+399 "BR_23_1_I = $BR_23_1_Power kW | $(pprint4 $BR_23_1_Load) %" \
--fill ${COLOR_23_2} -pointsize 16 -gravity west -annotate +0+418 "BR_23_2_I = $BR_23_2_Power kW | $(pprint4 $BR_23_2_Load) %" \
--fill ${COLOR_23_3} -pointsize 16 -gravity west -annotate +0+437 "BR_23_3_I = $BR_23_3_Power kW | $(pprint4 $BR_23_3_Load) %" \
--fill ${COLOR_24_1} -pointsize 16 -gravity west -annotate +0+456 "BR_24_1_I = $BR_24_1_Power kW | $(pprint4 $BR_24_1_Load) %" \
--fill ${COLOR_24_2} -pointsize 16 -gravity west -annotate +0+475 "BR_24_2_I = $BR_24_2_Power kW | $(pprint4 $BR_24_2_Load) %" \
--fill ${COLOR_24_3} -pointsize 16 -gravity west -annotate +0+494 "BR_24_3_I = $BR_24_3_Power kW | $(pprint4 $BR_24_3_Load) %" \
--trim ${TMP1} ${TMP1}
+COLOR_1_1=$(br_load_temp_color ${BR_1_1_Load})
+COLOR_1_2=$(br_load_temp_color ${BR_1_2_Load})
+COLOR_1_3=$(br_load_temp_color ${BR_1_3_Load})
+COLOR_2_1=$(br_load_temp_color ${BR_2_1_Load})
+COLOR_2_2=$(br_load_temp_color ${BR_2_2_Load})
+COLOR_2_3=$(br_load_temp_color ${BR_2_3_Load})
+COLOR_18_1=$(br_load_temp_color ${BR_18_1_Load})
+COLOR_18_2=$(br_load_temp_color ${BR_18_2_Load})
+COLOR_18_3=$(br_load_temp_color ${BR_18_3_Load})
+COLOR_19_1=$(br_load_temp_color ${BR_19_1_Load})
+COLOR_19_2=$(br_load_temp_color ${BR_19_2_Load})
+COLOR_19_3=$(br_load_temp_color ${BR_19_3_Load})
+COLOR_20_1=$(br_load_temp_color ${BR_20_1_Load})
+COLOR_20_2=$(br_load_temp_color ${BR_20_2_Load})
+COLOR_20_3=$(br_load_temp_color ${BR_20_3_Load})
+COLOR_21_1=$(br_load_temp_color ${BR_21_1_Load})
+COLOR_21_2=$(br_load_temp_color ${BR_21_2_Load})
+COLOR_21_3=$(br_load_temp_color ${BR_21_3_Load})
+COLOR_22_1=$(br_load_temp_color ${BR_22_1_Load})
+COLOR_22_2=$(br_load_temp_color ${BR_22_2_Load})
+COLOR_22_3=$(br_load_temp_color ${BR_22_3_Load})
+COLOR_23_1=$(br_load_temp_color ${BR_23_1_Load})
+COLOR_23_2=$(br_load_temp_color ${BR_23_2_Load})
+COLOR_23_3=$(br_load_temp_color ${BR_23_3_Load})
+COLOR_24_1=$(br_load_temp_color ${BR_24_1_Load})
+COLOR_24_2=$(br_load_temp_color ${BR_24_2_Load})
+COLOR_24_3=$(br_load_temp_color ${BR_24_3_Load})
 
 ############################################################
 #### TEMPERATURES
@@ -172,26 +144,26 @@ inlet6=${Rack_inlet_temp}
 
 #############################
 
-COLOR_S1=$(temp_color_sup $sup1)
-COLOR_S2=$(temp_color_sup $sup2)
-COLOR_S3=$(temp_color_sup $sup3)
-COLOR_S4=$(temp_color_sup $sup4)
-COLOR_S5=$(temp_color_sup $sup5)
-COLOR_S6=$(temp_color_sup $sup6)
+COLOR_S1=$(temp_color_sup ${sup1})
+COLOR_S2=$(temp_color_sup ${sup2})
+COLOR_S3=$(temp_color_sup ${sup3})
+COLOR_S4=$(temp_color_sup ${sup4})
+COLOR_S5=$(temp_color_sup ${sup5})
+COLOR_S6=$(temp_color_sup ${sup6})
 
-COLOR_I1=$(temp_color_inlet $inlet1)
-COLOR_I2=$(temp_color_inlet $inlet2)
-COLOR_I3=$(temp_color_inlet $inlet3)
-COLOR_I4=$(temp_color_inlet $inlet4)
-COLOR_I5=$(temp_color_inlet $inlet5)
-COLOR_I6=$(temp_color_inlet $inlet6)
+COLOR_I1=$(temp_color_inlet ${inlet1})
+COLOR_I2=$(temp_color_inlet ${inlet2})
+COLOR_I3=$(temp_color_inlet ${inlet3})
+COLOR_I4=$(temp_color_inlet ${inlet4})
+COLOR_I5=$(temp_color_inlet ${inlet5})
+COLOR_I6=$(temp_color_inlet ${inlet6})
 
-COLOR_R1=$(temp_color_ret $ret1)
-COLOR_R2=$(temp_color_ret $ret2)
-COLOR_R3=$(temp_color_ret $ret3)
-COLOR_R4=$(temp_color_ret $ret4)
-COLOR_R5=$(temp_color_ret $ret5)
-COLOR_R6=$(temp_color_ret $ret6)
+COLOR_R1=$(temp_color_ret ${ret1})
+COLOR_R2=$(temp_color_ret ${ret2})
+COLOR_R3=$(temp_color_ret ${ret3})
+COLOR_R4=$(temp_color_ret ${ret4})
+COLOR_R5=$(temp_color_ret ${ret5})
+COLOR_R6=$(temp_color_ret ${ret6})
 
 BAT_STATUS="OK"
 BAT_COLOR="green1"
@@ -201,69 +173,104 @@ COLOR="black"
 
 convert \
 -font Liberation-Sans-Bold -fill black -pointsize 24 -annotate +1150+40 "${NOW}" \
--font Liberation-Sans -fill ${COLOR} -pointsize 18             -annotate +1118+531 $BAT_Cap \
--font Liberation-Sans-Bold -fill ${BAT_COLOR} -pointsize 18    -annotate +1103+553 $BAT_STATUS \
--font Liberation-Sans -fill ${COLOR}    -pointsize 18          -annotate +1160+574 $BAT_Temp \
--font Liberation-Sans -fill ${COLOR}    -pointsize 18          -annotate +1108+596 $BAT_Runtime \
+-font Liberation-Sans-Bold -fill ${BAT_COLOR} -pointsize 18    -annotate +984+670 ${BAT_STATUS} \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 18          -annotate +974+770 ${BAT_Cap} \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 18          -annotate +950+840 ${BAT_Runtime} \
+-font Liberation-Sans -fill ${COLOR}    -pointsize 18          -annotate +980+928 ${BAT_Temp} \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+45+280   "20_2 = ${BR_20_2_Load}% ${BR_20_2_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+128+280  "21_2 = ${BR_21_2_Load}% ${BR_21_2_Power}kW" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+196+280 'CLIMA 4' \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+257+280  "20_3 = ${BR_20_3_Load}% ${BR_20_3_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+340+280  "21_3 = ${BR_21_3_Load}% ${BR_21_3_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+470+280  "19_1 = ${BR_19_1_Load}% ${BR_19_1_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+556+280  "18_1 = ${BR_18_1_Load}% ${BR_18_1_Power}kW" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+621+280 'CLIMA 3' \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+680+280  "19_3 = ${BR_19_3_Load}% ${BR_19_3_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+766+280  "18_3 = ${BR_18_3_Load}% ${BR_18_3_Power}kW" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+836+280 'CLIMA 6' \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+895+280  "19_2 = ${BR_19_2_Load}% ${BR_19_2_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+980+280  "18_2 = ${BR_18_2_Load}% ${BR_18_2_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+45+820   "23_3 = ${BR_23_3_Load}% ${BR_23_3_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+128+820  "24_3 = ${BR_24_3_Load}% ${BR_24_3_Power}kW" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+196+820 'CLIMA 1' \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+257+820  "24_2 = ${BR_24_2_Load}% ${BR_24_2_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+340+820  "23_2 = ${BR_23_2_Load}% ${BR_23_2_Power}kW" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+414+820 'CLIMA 5' \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+470+820  "24_1 = ${BR_24_1_Load}% ${BR_24_1_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+543+820  "22_1 = ${BR_22_1_Load}% ${BR_22_1_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+563+820  "22_3 = ${BR_22_3_Load}% ${BR_22_3_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+470+1020 "20_1 = ${BR_20_1_Load}% ${BR_20_1_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+563+1020 "21_1 = ${BR_21_1_Load}% ${BR_21_1_Power}kW" \
--font Liberation-Sans -fill black       -pointsize 19 -annotate 270x270+621+820 'CLIMA 2' \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+680+820  "23_1 = ${BR_23_1_Load}% ${BR_23_1_Power}kW" \
 -font Liberation-Sans -fill ${COLOR}    -pointsize 19 -annotate 270x270+766+820  "22_2 = ${BR_22_2_Load}% ${BR_22_2_Power}kW" \
--font Liberation-Sans -fill ${COLOR_S4} -pointsize 16 -annotate +148+25 $sup4 \
--font Liberation-Sans -fill ${COLOR_I4} -pointsize 16 -annotate +148+45 $inlet4 \
--font Liberation-Sans -fill ${COLOR_R4} -pointsize 16 -annotate +172+549 $ret4 \
--font Liberation-Sans -fill ${COLOR_S3} -pointsize 16 -annotate +572+25 $sup3 \
--font Liberation-Sans -fill ${COLOR_I3} -pointsize 16 -annotate +572+45 $inlet3 \
--font Liberation-Sans -fill ${COLOR_R3} -pointsize 16 -annotate +596+549 $ret3 \
--font Liberation-Sans -fill ${COLOR_S6} -pointsize 16 -annotate +783+25 $sup6 \
--font Liberation-Sans -fill ${COLOR_I6} -pointsize 16 -annotate +783+45 $inlet6 \
--font Liberation-Sans -fill ${COLOR_R6} -pointsize 16 -annotate +808+549 $ret6 \
--font Liberation-Sans -fill ${COLOR_R1} -pointsize 16 -annotate +170+594 $ret1 \
--font Liberation-Sans -fill ${COLOR_S1} -pointsize 16 -annotate +131+1081 $sup1 \
--font Liberation-Sans -fill ${COLOR_I1} -pointsize 16 -annotate +131+1101 $inlet1 \
--font Liberation-Sans -fill ${COLOR_R5} -pointsize 16 -annotate +390+594 $ret5 \
--font Liberation-Sans -fill ${COLOR_S5} -pointsize 16 -annotate +347+1081 $sup5 \
--font Liberation-Sans -fill ${COLOR_I5} -pointsize 16 -annotate +347+1101 $inlet5 \
--font Liberation-Sans -fill ${COLOR_R2} -pointsize 16 -annotate +594+594 $ret2 \
--font Liberation-Sans -fill ${COLOR_S2} -pointsize 16 -annotate +569+1081 $sup2 \
--font Liberation-Sans -fill ${COLOR_I2} -pointsize 16 -annotate +569+1101 $inlet2 \
-${FILE} ${FILE}
+-font Liberation-Sans -fill ${COLOR_I4} -pointsize 16 -annotate +55+43 ${inlet4} \
+-font Liberation-Sans -fill ${COLOR_S4} -pointsize 16 -annotate +169+43 ${sup4} \
+-font Liberation-Sans -fill ${COLOR_R4} -pointsize 16 -annotate +172+547 ${ret4} \
+-font Liberation-Sans -fill ${COLOR_I3} -pointsize 16 -annotate +488+43 ${inlet3} \
+-font Liberation-Sans -fill ${COLOR_S3} -pointsize 16 -annotate +601+43 ${sup3} \
+-font Liberation-Sans -fill ${COLOR_R3} -pointsize 16 -annotate +595+547 ${ret3} \
+-font Liberation-Sans -fill ${COLOR_I6} -pointsize 16 -annotate +700+43 ${inlet6} \
+-font Liberation-Sans -fill ${COLOR_S6} -pointsize 16 -annotate +804+43 ${sup6} \
+-font Liberation-Sans -fill ${COLOR_R6} -pointsize 16 -annotate +808+547 ${ret6} \
+-font Liberation-Sans -fill ${COLOR_R1} -pointsize 16 -annotate +170+592 ${ret1} \
+-font Liberation-Sans -fill ${COLOR_I1} -pointsize 16 -annotate +63+1095 ${inlet1} \
+-font Liberation-Sans -fill ${COLOR_S1} -pointsize 16 -annotate +176+1095 ${sup1} \
+-font Liberation-Sans -fill ${COLOR_R5} -pointsize 16 -annotate +390+592 ${ret5} \
+-font Liberation-Sans -fill ${COLOR_I5} -pointsize 16 -annotate +280+1095 ${inlet5} \
+-font Liberation-Sans -fill ${COLOR_S5} -pointsize 16 -annotate +383+1095 ${sup5} \
+-font Liberation-Sans -fill ${COLOR_R2} -pointsize 16 -annotate +594+592 ${ret2} \
+-font Liberation-Sans -fill ${COLOR_I2} -pointsize 16 -annotate +493+1095 ${inlet2} \
+-font Liberation-Sans -fill ${COLOR_S2} -pointsize 16 -annotate +596+1095 ${sup2} \
+${FILE_TEMPLATE} ${FILE}
+
+eval "$(~/issmon/get_janitza_power)"
+TOTAL_PW1_kw=$(echo "scale=1; ${TOTAL_PW_L1}/1000" | bc -l)
+TOTAL_PW2_kw=$(echo "scale=1; ${TOTAL_PW_L2}/1000" | bc -l)
+TOTAL_PW3_kw=$(echo "scale=1; ${TOTAL_PW_L3}/1000" | bc -l)
+TOTAL_kw=$(echo "scale=1; ${TOTAL_PW}/1000" | bc -l)
 
 convert -gravity east \
--font Liberation-Sans-Bold -fill ${COLOR} -pointsize 20 -annotate +37-493 "$UPS_OUT_LOAD1_P100" \
--font Liberation-Sans-Bold -fill ${COLOR} -pointsize 20 -annotate +98-493 "$UPS_OUT_LOAD1" \
--font Liberation-Sans-Bold -fill ${COLOR} -pointsize 20 -annotate +37-471 "$UPS_OUT_LOAD2_P100" \
--font Liberation-Sans-Bold -fill ${COLOR} -pointsize 20 -annotate +98-471 "$UPS_OUT_LOAD2" \
--font Liberation-Sans-Bold -fill ${COLOR} -pointsize 20 -annotate +37-449 "$UPS_OUT_LOAD3_P100" \
--font Liberation-Sans-Bold -fill ${COLOR} -pointsize 20 -annotate +98-449 "$UPS_OUT_LOAD3" \
--font Liberation-Sans-Bold -fill ${COLOR} -pointsize 20 -annotate +98-419 "$load_total" \
+-font Liberation-Sans-Bold -fill ${COLOR} -pointsize 24 -annotate +22-497 "$UPS_OUT_LOAD1_P100" \
+-font Liberation-Sans-Bold -fill ${COLOR} -pointsize 24 -annotate +94-497 "$UPS_OUT_LOAD1" \
+-font Liberation-Sans-Bold -fill ${COLOR} -pointsize 24 -annotate +22-471 "$UPS_OUT_LOAD2_P100" \
+-font Liberation-Sans-Bold -fill ${COLOR} -pointsize 24 -annotate +94-471 "$UPS_OUT_LOAD2" \
+-font Liberation-Sans-Bold -fill ${COLOR} -pointsize 24 -annotate +22-446 "$UPS_OUT_LOAD3_P100" \
+-font Liberation-Sans-Bold -fill ${COLOR} -pointsize 24 -annotate +94-446 "$UPS_OUT_LOAD3" \
+-font Liberation-Sans-Bold -fill ${COLOR} -pointsize 24 -annotate +94-420 "$load_total" \
+-font Liberation-Sans-Bold -fill ${COLOR} -pointsize 24 -annotate +84-380 "TOTAL MAIN LOAD" \
+-font Liberation-Sans-Bold -fill ${COLOR} -pointsize 24 -annotate +50-350 "PH1 + PH2 + PH3 = ${TOTAL_kw} kW" \
+-font Liberation-Sans-Bold -fill ${COLOR} -pointsize 24 -annotate +40-320 "L1 = ${TOTAL_PW1_kw} | L2 = ${TOTAL_PW2_kw} | L3 = ${TOTAL_PW3_kw}" \
 ${FILE} ${FILE}
 
 ##   add power info per Breaker
-composite -geometry +1230+180  ${TMP1} ${FILE} ${FILE}
+###############################################################################################################
+convert -size 840x1010 xc:"rgba(0,0,0,0)" -type truecolormatte PNG32:${TMP1}
+convert -transparent white -alpha transparent \
+-fill ${COLOR_1_1}  -pointsize 16 -gravity west -annotate +0+0   "BR_01_1_I = $BR_1_1_Power kW | $(pprint4 $BR_1_1_Load)%" \
+-fill ${COLOR_1_2}  -pointsize 16 -gravity west -annotate +0+19  "BR_01_2_I = $BR_1_2_Power kW | $(pprint4 $BR_1_2_Load)%" \
+-fill ${COLOR_1_3}  -pointsize 16 -gravity west -annotate +0+38  "BR_01_3_I = $BR_1_3_Power kW | $(pprint4 $BR_1_3_Load)%" \
+-fill ${COLOR_2_1}  -pointsize 16 -gravity west -annotate +0+57  "BR_02_1_I = $BR_2_1_Power kW | $(pprint4 $BR_2_1_Load)%" \
+-fill ${COLOR_2_2}  -pointsize 16 -gravity west -annotate +0+76  "BR_02_2_I = $BR_2_2_Power kW | $(pprint4 $BR_2_2_Load)%" \
+-fill ${COLOR_2_3}  -pointsize 16 -gravity west -annotate +0+95  "BR_02_3_I = $BR_2_3_Power kW | $(pprint4 $BR_2_3_Load)%" \
+-fill ${COLOR_18_1} -pointsize 16 -gravity west -annotate +0+114 "BR_18_1_I = $BR_18_1_Power kW | $(pprint4 $BR_18_1_Load)%" \
+-fill ${COLOR_18_2} -pointsize 16 -gravity west -annotate +0+133 "BR_18_2_I = $BR_18_2_Power kW | $(pprint4 $BR_18_2_Load)%" \
+-fill ${COLOR_18_3} -pointsize 16 -gravity west -annotate +0+152 "BR_18_3_I = $BR_18_3_Power kW | $(pprint4 $BR_18_3_Load)%" \
+-fill ${COLOR_19_1} -pointsize 16 -gravity west -annotate +0+171 "BR_19_1_I = $BR_19_1_Power kW | $(pprint4 $BR_19_1_Load)%" \
+-fill ${COLOR_19_2} -pointsize 16 -gravity west -annotate +0+190 "BR_19_2_I = $BR_19_2_Power kW | $(pprint4 $BR_19_2_Load)%" \
+-fill ${COLOR_19_3} -pointsize 16 -gravity west -annotate +0+209 "BR_19_3_I = $BR_19_3_Power kW | $(pprint4 $BR_19_3_Load)%" \
+-fill ${COLOR_20_1} -pointsize 16 -gravity west -annotate +0+228 "BR_20_1_I = $BR_20_1_Power kW | $(pprint4 $BR_20_1_Load)%" \
+-fill ${COLOR_20_2} -pointsize 16 -gravity west -annotate +0+247 "BR_20_2_I = $BR_20_2_Power kW | $(pprint4 $BR_20_2_Load)%" \
+-fill ${COLOR_20_3} -pointsize 16 -gravity west -annotate +0+266 "BR_20_3_I = $BR_20_3_Power kW | $(pprint4 $BR_20_3_Load)%" \
+-fill ${COLOR_21_1} -pointsize 16 -gravity west -annotate +0+285 "BR_21_1_I = $BR_21_1_Power kW | $(pprint4 $BR_21_1_Load)%" \
+-fill ${COLOR_21_2} -pointsize 16 -gravity west -annotate +0+304 "BR_21_2_I = $BR_21_2_Power kW | $(pprint4 $BR_21_2_Load)%" \
+-fill ${COLOR_21_3} -pointsize 16 -gravity west -annotate +0+323 "BR_21_3_I = $BR_21_3_Power kW | $(pprint4 $BR_21_3_Load)%" \
+-fill ${COLOR_22_1} -pointsize 16 -gravity west -annotate +0+342 "BR_22_1_I = $BR_22_1_Power kW | $(pprint4 $BR_22_1_Load)%" \
+-fill ${COLOR_22_2} -pointsize 16 -gravity west -annotate +0+361 "BR_22_2_I = $BR_22_2_Power kW | $(pprint4 $BR_22_2_Load)%" \
+-fill ${COLOR_22_3} -pointsize 16 -gravity west -annotate +0+380 "BR_22_3_I = $BR_22_3_Power kW | $(pprint4 $BR_22_3_Load)%" \
+-fill ${COLOR_23_1} -pointsize 16 -gravity west -annotate +0+399 "BR_23_1_I = $BR_23_1_Power kW | $(pprint4 $BR_23_1_Load)%" \
+-fill ${COLOR_23_2} -pointsize 16 -gravity west -annotate +0+418 "BR_23_2_I = $BR_23_2_Power kW | $(pprint4 $BR_23_2_Load)%" \
+-fill ${COLOR_23_3} -pointsize 16 -gravity west -annotate +0+437 "BR_23_3_I = $BR_23_3_Power kW | $(pprint4 $BR_23_3_Load)%" \
+-fill ${COLOR_24_1} -pointsize 16 -gravity west -annotate +0+456 "BR_24_1_I = $BR_24_1_Power kW | $(pprint4 $BR_24_1_Load)%" \
+-fill ${COLOR_24_2} -pointsize 16 -gravity west -annotate +0+475 "BR_24_2_I = $BR_24_2_Power kW | $(pprint4 $BR_24_2_Load)%" \
+-fill ${COLOR_24_3} -pointsize 16 -gravity west -annotate +0+494 "BR_24_3_I = $BR_24_3_Power kW | $(pprint4 $BR_24_3_Load)%" \
+-trim ${TMP1} ${TMP1}
+
+composite -geometry +1230+280  ${TMP1} ${FILE} ${FILE}
 ############################################################################
 
 #CPU_REPORT="${ISSMON_DIR}/cpu_report.png"
@@ -305,11 +312,5 @@ composite -geometry +1230+180  ${TMP1} ${FILE} ${FILE}
 
 rm -f ${TMP1}
 mv -f ${FILE} ${FILE_FINAL}
-
-
-
-
-
-
 
 

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+TARGET="10.10.11.246"
+
+PWD_DIR=$(dirname ${0})
+
+ISSMON_DIR="/home/monalisa/issmon/"
+OUTPUT_DIR="/home/monalisa/issmon_data"
+FILE="${OUTPUT_DIR}/TOTAL-DC.txt"
+
+#JANITZA-MIB::pL1.0 = 13496
+#JANITZA-MIB::pL2.0 = 13829
+#JANITZA-MIB::pL3.0 = 14766
+#JANITZA-MIB::sL1.0 = 13513
+#JANITZA-MIB::sL2.0 = 13837
+#JANITZA-MIB::sL3.0 = 14835
+
+# care e diferenta? s e puterea totala?
+## .1.3.6.1.4.1.34278.1.19.0 .1.3.6.1.4.1.34278.1.20.0 .1.3.6.1.4.1.34278.1.21.0
+
+OUTPUT=$(snmpget -c iss-ro -OQvn -v 2c ${TARGET} .1.3.6.1.4.1.34278.1.13.0 .1.3.6.1.4.1.34278.1.14.0 .1.3.6.1.4.1.34278.1.15.0)
+
+(( i = 0 ))
+(( total_pw = 0 ))
+
+OUTPUT=$(
+for p in $(echo ${OUTPUT} | xargs); do
+    (( i++ ))
+    (( total_pw += ${p} ))
+    echo "TOTAL_PW_L${i}=${p}"
+done
+echo "TOTAL_PW=${total_pw}"
+)
+
+echo "${OUTPUT}" | tee "${FILE}"
+

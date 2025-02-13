@@ -1,5 +1,8 @@
 #!/bin/bash
 
+exec 220<$0
+flock -n 220 || exit 1
+
 PWD_DIR=$(dirname ${0})
 
 PDU="172.20.0.192"
@@ -11,12 +14,11 @@ TEMP_FILE="/tmp/temp_snmp_data.txt"
 FILE="$OUTPUT_DIR/PDUtable.txt"
 FILE_SHORT="$OUTPUT_DIR/PDU.txt"
 
-GET="snmpget"
+GET="snmpbulkget"
 TABLE="snmptable"
 
 SNMP_COMMUNITY="-c iss-ro -v 2c -Pu"
-ARG3="-Oqv"
-TABLE_ARGS="-Osf -Le -Cl -Cb"
+TABLE_ARGS="-Ihr -Le -Clb"
 
 NAME=".1.3.6.1.2.1.1.5.0"
 POWERNET=".1.3.6.1.4.1.318"
@@ -24,9 +26,9 @@ POWERNET=".1.3.6.1.4.1.318"
 BREAKER_TABLE=".1.1.22.2.4"
 
 ## isxModularDistModuleBreakerTable
-${TABLE} ${TABLE_ARGS} ${SNMP_COMMUNITY} ${PDU} ${POWERNET}${BREAKER_TABLE} > ${FILE} 2>/dev/null
+${TABLE} ${TABLE_ARGS} ${SNMP_COMMUNITY} ${PDU} ${POWERNET}${BREAKER_TABLE} | tail -n +3 > ${FILE} 2>/dev/null
 
-tail -n +4 $FILE | sed 's/phaseL//g' | awk \
+tail -n +2 $FILE | sed 's/phaseL//g' | awk \
 '{
 if ($1 != "-1")
   {

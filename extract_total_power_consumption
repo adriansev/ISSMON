@@ -1,0 +1,100 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import math
+import re
+import glob
+import logging
+from typing import Union
+from rich.pretty import pprint
+
+def is_help(args: Union[str, list], clean_args: bool = False) -> bool:
+    if not args: return False
+    if isinstance(args, str): args = args.split()
+    help_opts = ('-h', '--h', '-help', '--help')
+    help_arg_present = any(opt in args for opt in help_opts)
+    if help_arg_present and clean_args:
+        for opt in help_opts: get_arg(args, opt)
+    return help_arg_present
+
+def get_dict(inputfile: str) -> dict:
+    if not inputfile or not os.path.isfile(inputfile): return {}
+    DICT_INFO = {}
+    try:
+        with open(inputfile, encoding="ascii", errors="replace", mode = 'r') as rel_file:
+            for line in rel_file:
+                name, _, var = line.rstrip().partition("=")
+                var = re.sub(r"^\"", '', str(var.strip()))
+                var = re.sub(r"\"$", '', var)
+                DICT_INFO[name.strip()] = var
+    except Exception as e:
+        logging.error(e)
+        logging.error('Error reading the configuration file: %s', inputfile)
+    return DICT_INFO
+
+DATA_DIR='/home/monalisa/issmon/data/power_index_tot'
+
+help_msg = ('Either of\n'
+f'two(2) arguments required: FILE1 FILE2, searched within {DATA_DIR}, .txt extension can be ommited\n'
+f'list : will list all data files in {DATA_DIR}\n'
+'-h --help : for this help message')
+
+def file_list() -> list:
+    return glob.glob(f'{DATA_DIR}/*.txt')
+
+sys.argv.pop(0)  # remove executable name from argv list
+if len(sys.argv) < 1:
+    print(help_msg)
+    sys.exit(1)
+
+if is_help(sys.argv):
+    print(help_msg)
+    sys.exit(0)
+
+if sys.argv[0] == 'list':
+    print('\n'.join([x.replace(f'{DATA_DIR}/','') for x in file_list()]))
+    sys.exit(0)
+
+if len(sys.argv) < 2:
+    print(help_msg)
+    sys.exit(1)
+
+FILE1 = sys.argv[0]
+FILE2 = sys.argv[1]
+if not FILE1.endswith('.txt'): FILE1 = f'{FILE1}.txt'
+if not FILE2.endswith('.txt'): FILE2 = f'{FILE2}.txt'
+
+FILE_LIST = file_list()
+FOUND_FILE1 = [x for x in FILE_LIST if FILE1 in x][0]
+FOUND_FILE2 = [x for x in FILE_LIST if FILE2 in x][0]
+
+if not FOUND_FILE1:
+    print(f'{FILE1} was not found in list of records; see content of {DATA_DIR}')
+    sys.exit(1)
+
+if not FOUND_FILE2:
+    print(f'{FILE2} was not found in list of records; see content of {DATA_DIR}')
+    sys.exit(1)
+
+dict1 = get_dict(FOUND_FILE1)
+dict2 = get_dict(FOUND_FILE2)
+var_list = list(dict1.keys() & dict2.keys())
+var_list.sort()
+
+DELTA_SUM_ACTIVE = 0
+DELTA_TIMESTAMP = 0
+for var_idx in var_list:
+    val1 = math.fabs(float(dict1[var_idx])/10.)
+    val2 = math.fabs(float(dict2[var_idx])/10.)
+    diff = math.fabs(val2 - val1)
+    if diff == 0: continue
+    if var_idx == 'TIMESTAMP':
+        DELTA_TIMESTAMP = diff
+        continue
+    if var_idx.startswith('wh'):
+        DELTA_SUM_ACTIVE += diff
+    print(f'delta {var_idx} = {diff:.1f}')
+
+avg = float(DELTA_SUM_ACTIVE)/float(DELTA_TIMESTAMP)
+print(f'\nTotal :: {DELTA_SUM_ACTIVE:.1f}kWh/{DELTA_TIMESTAMP:.1f}sec --> average of {avg:.3f} kWh/s')

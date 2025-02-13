@@ -12,7 +12,7 @@ OUTPUT_DIR="/home/monalisa/issmon_data/network"
 
 TABLE="snmptable "
 GET="snmpget "
-WALK="snmpwalk "
+WALK="snmpbulkwalk "
 
 ifTable_OID=" 1.3.6.1.2.1.2.2"
 NAME_OID=" .1.3.6.1.2.1.1.5.0"
@@ -26,28 +26,27 @@ get_snmp_info () {
   local switch
   switch="${1}"
 
-  local GET_NAME_SWITCH="${GET} ${ARG3} ${SNMP_COMMUNITY} ${switch} ${NAME_OID} | sed 's/^\ //;s/\ /_/g'"
-  local GET_TABLE_SWITCH="${TABLE} ${SNMP_COMMUNITY} ${switch} ${ARG2} ${ifTable_OID}"
-
-  local NAME_SWITCH=$(eval ${GET_NAME_SWITCH})
+  local GET_NAME_SWITCH="${GET} -t 2 -r 1 ${ARG3} ${SNMP_COMMUNITY} ${switch} ${NAME_OID} | sed 's/^\ //;s/\ /_/g'"
+  local NAME_SWITCH=$(eval ${GET_NAME_SWITCH} 2>/dev/null)
   [[ -z "${NAME_SWITCH}" ]] && return 1;
 
-  local OUTPUT="${OUTPUT_base}_${NAME_SWITCH}.txt"
-  eval ${GET_TABLE_SWITCH} > ${OUTPUT}
-
-  #echo "Name : " $NAME_SWITCH
-
-  local FILE_TMP="${OUTPUT_DIR}/${NAME_SWITCH}_tmp.iftbl"
   local FILE="${OUTPUT_DIR}/${NAME_SWITCH}.iftbl"
-  ##cp $OUTPUT ${FILE}.rawout
+  local FILETMP="${OUTPUT_DIR}/${NAME_SWITCH}.iftbl_tmp"
+  local FILERAW="${OUTPUT_DIR}/${NAME_SWITCH}_raw_tmp.iftbl"
+  local FILERAW_NICE="${OUTPUT_DIR}/${NAME_SWITCH}_raw.iftbl"
 
-  echo -e "Descr\t AdminStatus\t OperStatus\t InDiscards\t InErrors\t OutDiscards\t OutErrors\t InOctets\t OutOctets"  > ${FILE_TMP}
-  awk -F" ; " '{ if ( ($3 == "ethernetCsmacd") || ($3 == "gigabitEthernet") ) { print $2,"\t",$7,"\t",$8,"\t",$13,"\t",$14,"\t",$19,"\t",$20,"\t",$10,"\t",$16; } }' ${OUTPUT} >> ${FILE_TMP}
+  local GET_TABLE_SWITCH="${TABLE} ${SNMP_COMMUNITY} ${switch} ${ARG2} ${ifTable_OID}"
 
-  cat ${FILE_TMP} | column -t > ${FILE}
+  eval ${GET_TABLE_SWITCH} 2> /dev/null > ${FILERAW}
 
-  # after taking all data delete temp file
-  rm -rf ${OUTPUT} ${FILE_TMP}
+  cat ${FILERAW} | tail -n +3  | column -t 2> /dev/null > ${FILERAW_NICE}
+
+  echo -e "Descr\t AdminStatus\t OperStatus\t InDiscards\t InErrors\t OutDiscards\t OutErrors\t InOctets\t OutOctets"  > ${FILETMP}
+  awk -F" ; " '{ if ( ($3 == "ethernetCsmacd") || ($3 == "gigabitEthernet") ) { print $2,"\t",$7,"\t",$8,"\t",$13,"\t",$14,"\t",$19,"\t",$20,"\t",$10,"\t",$16; } }' ${FILERAW} >> ${FILETMP}
+  cat ${FILETMP} | column -t > ${FILE}
+
+  # after taking all data delete temp files
+  rm -rf ${FILETMP} ${FILERAW}
 }
 
 for sw in $(cat ${ISSMON_DIR}/list_switch) ; do
