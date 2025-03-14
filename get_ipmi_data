@@ -16,6 +16,29 @@ from rich.pretty import pprint
 from rich.console import Console
 from rich.table import Table
 
+# taken from https://gist.github.com/jeremyephron/3dbf7c4c778ce38e63cea7c9ab1fd99d
+def lock_script() -> bool:
+    """
+    Locks a file pertaining to this script so that it cannot be run simultaneously.
+    Since the lock is automatically released when this script ends, there is no need for an unlock function for this use case.
+    Returns: True if the lock was acquired, False otherwise.
+    """
+    global lockfile  # file must remain open until program quits
+    lockfile = open(f'/tmp/{Path(__file__).name}.lock', 'w')
+
+    try:
+        # Try to grab an exclusive lock on the file, raise error otherwise
+        fcntl.lockf(lockfile, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError as e:
+        if e.errno == errno.EACCES or e.errno == errno.EAGAIN:
+            return False
+        raise
+    else:
+        return True
+
+if not lock_script(): sys.exit()
+
+
 ignore_comments_re = re.compile('^\\s*(#|;|//)+', re.MULTILINE)  # identifiy a range of comments
 emptyline_re = re.compile('^\\s*$', re.MULTILINE)  # whitespace line
 host_name_re = re.compile('----------------\n\w+\.dev\n----------------', re.MULTILINE)
@@ -48,12 +71,15 @@ def file2list(input_file: str) -> list:
             file_list.extend(line.strip().split())
     return file_list
 
+
 IPMI_LIST = os.path.realpath(os.path.expanduser(os.path.expandvars("~/issmon/list_ipmi")))
 IPMI_HOST_LIST = file2list(IPMI_LIST)
 
 ## IPMI_HOST_LIST = IPMI_HOST_LIST[:2] # select only first 2 hosts for testing purposes
 HOSTLIST_ARG = ','.join(IPMI_HOST_LIST)
-OUTPUT_DIR = os.path.realpath(os.path.expanduser(os.path.expandvars("~/issmon_data/ipmi")))
+
+ISSMON_DATA = '/home/issmon_data/'
+OUTPUT_DIR = os.path.realpath(f'{ISSMON_DATA}/ipmi')
 
 # convert sensor line to dict
 def sensor_line2dict(sensor_line:str) -> dict:
@@ -76,27 +102,6 @@ def sensor_line2dict(sensor_line:str) -> dict:
     SENSOR_PROPS['event'] = s_fields[12].replace("'","").strip()
     return {NAME: SENSOR_PROPS }
 
-# taken from https://gist.github.com/jeremyephron/3dbf7c4c778ce38e63cea7c9ab1fd99d
-def lock_script() -> bool:
-    """
-    Locks a file pertaining to this script so that it cannot be run simultaneously.
-    Since the lock is automatically released when this script ends, there is no need for an unlock function for this use case.
-    Returns: True if the lock was acquired, False otherwise.
-    """
-    global lockfile  # file must remain open until program quits
-    lockfile = open(f'/tmp/{Path(__file__).name}.lock', 'w')
-
-    try:
-        # Try to grab an exclusive lock on the file, raise error otherwise
-        fcntl.lockf(lockfile, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError as e:
-        if e.errno == errno.EACCES or e.errno == errno.EAGAIN:
-            return False
-        raise
-    else:
-        return True
-
-if not lock_script(): sys.exit()
 
 NOW = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -140,22 +145,10 @@ table.add_column("AOC_NIC", no_wrap = True)
 HOST_INFO_SORTED = dict(sorted(HOST_INFO.items()))
 for h in HOST_INFO_SORTED:
     hostname_nice = h.replace('.dev', '')
-    host_dict = HOST_INFO_SORTED[h]
+    host_dict = dict(HOST_INFO_SORTED[h])
 
     host_ipmi_dir = f'{OUTPUT_DIR}/{hostname_nice}'
     Path(host_ipmi_dir).mkdir(parents = True, exist_ok = True)
-
-    file_full  = f'{host_ipmi_dir}/{hostname_nice}_full.txt'
-    file_basic = f'{host_ipmi_dir}/{hostname_nice}_basic.txt'
-    file_sh    = f'{host_ipmi_dir}/{hostname_nice}_sh.txt'
-    timestamp  = f'{host_ipmi_dir}/{NOW}.timestamp'
-
-    for ts_file in glob.iglob(os.path.join(host_ipmi_dir, '*.timestamp')): os.remove(ts_file)
-    with open(timestamp, 'w', encoding = "ascii", errors = "replace") as f: f.write('')
-
-    with open(file_full, 'w', encoding = "ascii", errors = "replace") as f:
-        json_str = json.dumps(host_dict, indent = 4)
-        f.write(json_str)
 
     # we have different names: single socket "CPU Temp", dual-socket we have "CPU{1,2} Temp"
     short_dict = {}
@@ -182,6 +175,19 @@ for h in HOST_INFO_SORTED:
     aoc_nic_list = [x for x in host_dict.keys() if x.startswith("AOC_NIC")]
     temp_nic = host_dict[aoc_nic_list[0]]["reading"] if aoc_nic_list else "NO_NIC_TEMP"
 
+    file_full  = f'{host_ipmi_dir}/{hostname_nice}_full.txt'
+    file_basic = f'{host_ipmi_dir}/{hostname_nice}_basic.txt'
+    file_sh    = f'{host_ipmi_dir}/{hostname_nice}_sh.txt'
+    timestamp  = f'{host_ipmi_dir}/{NOW}.timestamp'
+
+    for ts_file in glob.iglob(os.path.join(host_ipmi_dir, '*.timestamp')): os.remove(ts_file)
+    with open(timestamp, 'w', encoding = "ascii", errors = "replace") as f: f.write('')
+
+    with open(file_full, 'w', encoding = "ascii", errors = "replace") as f:
+        json_str = json.dumps(host_dict, indent = 4)
+        f.write(json_str)
+
+
     table.add_row(f'{hostname_nice}',f'{temp_cpu}', f'{temp_sys}', f'{temp_perif}', f'{temp_nic}')
 
     with open(file_basic, 'w', encoding = "ascii", errors = "replace") as f:
@@ -195,7 +201,27 @@ for h in HOST_INFO_SORTED:
             content = f'{content}{sensor_name_nice}="{short_dict[sensor]}"\n'
         f.write(content)
 
-with open(f'{OUTPUT_DIR}/ipmi_stats.txt', 'w', encoding = "ascii", errors = "replace") as f:
-    console = Console(file = f)
-    console.print(table)
+
+MYCONSOLE_HTML_FORMAT = """\
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" HTTP-EQUIV="refresh" CONTENT="30">
+<style>
+{stylesheet}
+body {{
+    color: {foreground};
+    background-color: {background};
+}}
+</style>
+</head>
+<body>
+    <pre style="font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"><code style="font-family:inherit">{code}</code></pre>
+</body>
+</html>
+"""
+
+console = Console(record = True, tab_size = 4, soft_wrap = False, width = 900)
+console.print(table)
+console.save_html(f'{OUTPUT_DIR}/ipmi_stats.html', code_format = MYCONSOLE_HTML_FORMAT)
 

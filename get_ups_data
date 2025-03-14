@@ -120,7 +120,7 @@ $upsPhaseOutputPercentLoad3 2>/dev/null)
   for ( i = 1; i <= NF; i++)
     {
     if ( index($i,"\"") == 1 ) { model = ($i); continue; }
-    if ( index($i,"\"") == length($i) ) { model = (model)("_")($i); break; }  
+    if ( index($i,"\"") == length($i) ) { model = (model)("_")($i); break; }
     model = (model)("_")($i);
     }
   printf ("UPS_Name=%s\n", $1);
@@ -148,7 +148,9 @@ $upsPhaseOutputPercentLoad3 2>/dev/null)
   printf ("UPS_OUT_LOAD1_P100=%.1f\n", $24);
   printf ("UPS_OUT_LOAD2_P100=%.1f\n", $25);
   printf ("UPS_OUT_LOAD3_P100=%.1f\n", $26);
-  }' | tee "${FILE}"
+  }' > "${FILE}"
+
+# | tee "${FILE}"
 
 #COMMENT
 

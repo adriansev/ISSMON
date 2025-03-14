@@ -11,7 +11,7 @@ NOW="${DAY}  ${TIME}"
 CURL_CMD="/usr/bin/curl -fsSLk -o"
 
 ISSMON_DIR="/home/monalisa/issmon"
-OUTPUT_DIR="/home/monalisa/issmon/data"
+OUTPUT_DIR="/home/issmon_data"
 
 FILE_TEMPLATE="${ISSMON_DIR}/ISS-DC_template.png"
 FILE="${OUTPUT_DIR}/ISS-DC_tmp.png"
