@@ -92,24 +92,12 @@ $upsAdvBatteryReplaceIndicator \
 $upsHighPrecBatteryCapacity \
 $upsHighPrecBatteryTemperature \
 $upsReason4LastTransfer \
-$upsPhaseInputVoltage1 \
-$upsPhaseInputVoltage2 \
-$upsPhaseInputVoltage3 \
-$upsPhaseInputCurrent1 \
-$upsPhaseInputCurrent2 \
-$upsPhaseInputCurrent3 \
-$upsPhaseOutputVoltage1 \
-$upsPhaseOutputVoltage2 \
-$upsPhaseOutputVoltage3 \
-$upsPhaseOutputCurrent1 \
-$upsPhaseOutputCurrent2 \
-$upsPhaseOutputCurrent3 \
-$upsPhaseOutputLoad1 \
-$upsPhaseOutputLoad2 \
-$upsPhaseOutputLoad3 \
-$upsPhaseOutputPercentLoad1 \
-$upsPhaseOutputPercentLoad2 \
-$upsPhaseOutputPercentLoad3 2>/dev/null)
+$upsPhaseInputVoltage1      $upsPhaseInputVoltage2  $upsPhaseInputVoltage3 \
+$upsPhaseInputCurrent1      $upsPhaseInputCurrent2  $upsPhaseInputCurrent3 \
+$upsPhaseOutputVoltage1     $upsPhaseOutputVoltage2 $upsPhaseOutputVoltage3 \
+$upsPhaseOutputCurrent1     $upsPhaseOutputCurrent2 $upsPhaseOutputCurrent3 \
+$upsPhaseOutputLoad1        $upsPhaseOutputLoad2    $upsPhaseOutputLoad3 \
+$upsPhaseOutputPercentLoad1 $upsPhaseOutputPercentLoad2 $upsPhaseOutputPercentLoad3 2>/dev/null)
 
 ##echo $SNMPOUT
 #: <<'COMMENT'

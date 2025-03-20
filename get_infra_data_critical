@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+exec 310<$0
+flock -n 310 || exit 1
+
+pushd /home/monalisa/issmon &> /dev/null || { echo "Could not pushd"; exit 1; }
+
+/home/monalisa/issmon/get_ups_data &
+/home/monalisa/issmon/get_cooling_data &
+wait
+
+# Send ganglia metrics
+/home/monalisa/bin/gmond_ups &
+/home/monalisa/bin/gmond_cooling &
+wait
+
+popd &>/dev/null
+

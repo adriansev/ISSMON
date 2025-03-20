@@ -11,7 +11,7 @@ SEND="/usr/bin/gmetric -c ${CONF}"
 
 UPS_DATA_DIR="/home/issmon_data"
 
-LIFETIME="--tmax=600 --dmax=0"
+LIFETIME=" --tmax=600 --dmax=0 "
 
 source ${UPS_DATA_DIR}/UPS.txt
 
@@ -35,6 +35,9 @@ ${SEND} -S ${SPOOF} -g "Input_PH3" -n "ups_in_ph3_v"     -v $UPS_IN_V3      -t "
 ${SEND} -S ${SPOOF} -g "Input_PH1" -n "ups_in_ph1_i"     -v $UPS_IN_I1      -t "float"  -u "A" -s "both" -D "Input Current - Phase1"   -T "Input Current - PH1"   ${LIFETIME}
 ${SEND} -S ${SPOOF} -g "Input_PH2" -n "ups_in_ph2_i"     -v $UPS_IN_I2      -t "float"  -u "A" -s "both" -D "Input Current - Phase2"   -T "Input Current - PH2"   ${LIFETIME}
 ${SEND} -S ${SPOOF} -g "Input_PH3" -n "ups_in_ph3_i"     -v $UPS_IN_I3      -t "float"  -u "A" -s "both" -D "Input Current - Phase3"   -T "Input Current - PH3"   ${LIFETIME}
+
+UPS_TOTAL_INPUT_LOAD=$(echo "${UPS_IN_V1}*${UPS_IN_I1} + ${UPS_IN_V2}*${UPS_IN_I2} + ${UPS_IN_V3}*${UPS_IN_I3}" | bc -l)
+${SEND} -S ${SPOOF} -g "total"      -n "ups_total_input_load"    -v ${UPS_TOTAL_INPUT_LOAD}   -t "float"  -u "VA" -s "both" -D "UPS Input Power"    -T "UPS Input Power"    ${LIFETIME}
 
 ${SEND} -S ${SPOOF} -g "Output_PH1" -n "ups_out_ph1_v"     -v $UPS_OUT_V1      -t "float"  -u "V" -s "both" -D "Output Voltage - Phase1"   -T "Output Voltage - PH1"   ${LIFETIME}
 ${SEND} -S ${SPOOF} -g "Output_PH2" -n "ups_out_ph2_v"     -v $UPS_OUT_V2      -t "float"  -u "V" -s "both" -D "Output Voltage - Phase2"   -T "Output Voltage - PH2"   ${LIFETIME}
@@ -63,6 +66,10 @@ ${SEND} -S ${SPOOF} -g "Output_PH1" -n "dc_ph1_load"      -v ${TOTAL_PW_L1}   -t
 ${SEND} -S ${SPOOF} -g "Output_PH2" -n "dc_ph2_load"      -v ${TOTAL_PW_L2}   -t "float"  -u "VA" -s "both" -D "DC Power - Phase2"    -T "DC Power - PH2"    ${LIFETIME}
 ${SEND} -S ${SPOOF} -g "Output_PH3" -n "dc_ph3_load"      -v ${TOTAL_PW_L3}   -t "float"  -u "VA" -s "both" -D "DC Power - Phase3"    -T "DC Power - PH3"    ${LIFETIME}
 ${SEND} -S ${SPOOF} -g "total"      -n "dc_total_load"    -v ${TOTAL_PW}      -t "float"  -u "VA" -s "both" -D "DC Power"             -T "DC Power"          ${LIFETIME}
+
+CHILLER_PW=$(echo "${TOTAL_PW} - ${UPS_TOTAL_LOAD}" | bc -l)
+echo -e "Chiller PW = ${CHILLER_PW}"
+${SEND} -S ${SPOOF} -g "total"      -n "chiller_load"    -v ${CHILLER_PW}      -t "float"  -u "VA" -s "both" -D "Chiller Power"             -T "Chiller Power"          ${LIFETIME}
 
 
 
